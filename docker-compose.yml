@@ -1,0 +1,13 @@
+version: '3.4'
+services:
+  api:
+    build:
+      context: ./coffee-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - coffee-service-network
+networks:
+  coffee-service-network:
+    driver: bridge

@@ -1,18 +1,19 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"valantonini/go-coffee-service/coffee-service/data"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		data := make(map[string]string)
-		data["hello"] = "world"
+	repository, _ := data.InitRepository()
 
-		res, err := json.Marshal(data)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		data, _ := repository.Find()
+
+		res, err := data.ToJSON()
 		if err != nil {
 			log.Fatalf("Error happened in JSON marshal. Err: %s", err)
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)

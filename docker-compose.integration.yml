@@ -1,0 +1,10 @@
+version: '3.4'
+services:
+  test:
+    build:
+      context: ./coffee-service
+      dockerfile: integration_tests/infrastructure/Dockerfile
+    networks:
+      - coffee-service-network
+    depends_on:
+      - api
