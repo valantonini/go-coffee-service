@@ -6,7 +6,7 @@ COPY go.* ./
 
 RUN go mod download
 
-COPY .. ./
+COPY ./ ./
 
 RUN chmod +x ./integration_tests/infrastructure/wait-for-it.sh ./integration_tests/infrastructure/docker-entrypoint.sh
 
