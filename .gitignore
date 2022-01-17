@@ -2,6 +2,9 @@
 .DS_Store
 .idea
 
+# output directory
+bin
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
