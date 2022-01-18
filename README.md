@@ -6,7 +6,9 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 ## env
 
 go 1.17
+
 docker 20.10.11
+
 make
 
 ```bash
