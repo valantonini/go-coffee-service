@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -15,79 +15,82 @@ import (
 	"valantonini/go-coffee-service/coffee-service/data/entities"
 )
 
-func TestGetAllCoffees(t *testing.T) {
+var urlStem = os.Getenv("URL_STEM")
+
+func TestCoffees(t *testing.T) {
 	if os.Getenv("INTEGRATION_TESTS") == "" {
 		t.Skip()
 	}
 
-	url := "http://api:8080/list"
+	t.Run("should get all coffees", func(t *testing.T) {
+		req := requestContext{
+			t:          t,
+			url:        "/list",
+			httpMethod: http.MethodGet,
+			body:       nil,
+		}
 
-	client := http.Client{
-		Timeout: time.Second * 2,
-	}
+		body := doRequest(req)
+		bd := entities.Coffees{}
+		err := json.Unmarshal(body, &bd)
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+		assert.NoError(t, err)
+		assert.NotZero(t, len(bd))
+	})
 
-	res, getErr := client.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
+	t.Run("should add coffee", func(t *testing.T) {
+		coffeeName := uuid.New()
+		var jsonData = []byte(fmt.Sprintf(`{
+			"name": "%v"
+		}`, coffeeName))
 
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
+		req := requestContext{
+			t:          t,
+			url:        "/add",
+			httpMethod: http.MethodPost,
+			body:       bytes.NewBuffer(jsonData),
+		}
 
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
+		body := doRequest(req)
 
-	bd := entities.Coffees{}
-	err = json.Unmarshal(body, &bd)
-	assert.NoError(t, err)
-	assert.NotZero(t, len(bd))
+		coffee := entities.Coffee{}
+		err := json.Unmarshal(body, &coffee)
+
+		assert.NoError(t, err)
+		assert.NotZero(t, coffee.ID)
+		assert.Equal(t, coffeeName.String(), coffee.Name)
+	})
 }
 
-func TestAddCoffee(t *testing.T) {
-	if os.Getenv("INTEGRATION_TESTS") == "" {
-		t.Skip()
-	}
+type requestContext struct {
+	t          *testing.T
+	url        string
+	httpMethod string
+	body       io.Reader
+}
 
-	url := "http://api:8080/add"
+var client = http.Client{
+	Timeout: time.Second * 2,
+}
 
-	client := http.Client{
-		Timeout: time.Second * 2,
-	}
+func doRequest(ctx requestContext) []byte {
+	ctx.t.Helper()
 
-	coffeeName := uuid.New()
-	var jsonData = []byte(fmt.Sprintf(`{
-		"name": "%v"
-	}`, coffeeName))
+	url := fmt.Sprintf("%v%v", urlStem, ctx.url)
+	req, err := http.NewRequest(ctx.httpMethod, url, ctx.body)
+	assert.NoError(ctx.t, err)
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
-	res, getErr := client.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
+	res, err := client.Do(req)
+	assert.NoError(ctx.t, err)
 
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
 
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
+	body, err := ioutil.ReadAll(res.Body)
+	assert.NoError(ctx.t, err)
 
-	coffee := entities.Coffee{}
-	err := json.Unmarshal(body, &coffee)
-
-	assert.NoError(t, err)
-	assert.NotZero(t, coffee.ID)
-	assert.Equal(t, coffeeName.String(), coffee.Name)
+	return body
 }

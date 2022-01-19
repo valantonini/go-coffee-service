@@ -4,6 +4,8 @@ services:
     build:
       context: ./coffee-service
       dockerfile: integration_tests/infrastructure/Dockerfile
+    environment:
+      - URL_STEM=http://api:8080
     networks:
       - coffee-service-network
     depends_on:
