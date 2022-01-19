@@ -3,6 +3,7 @@
 [![CI](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml/badge.svg)](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml)
 
 Playing with patterns and libraries for distributed systems in the Go ecosystem.
+
 Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices)
 
 ## caveats
@@ -20,7 +21,6 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 
 ```bash
 docker network create -d bridge coffee-service-network
-
 ```
 
 ## run
@@ -31,5 +31,4 @@ make integration
 
 # run the coffee-service
 docker compose up
-
 ```
