@@ -1,5 +1,7 @@
 # go-coffee-service
 
+[![CI](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml/badge.svg)](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml)
+
 Playing with patterns and libraries for distributed systems in the Go ecosystem.
 Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices)
 
