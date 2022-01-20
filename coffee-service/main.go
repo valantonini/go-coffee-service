@@ -2,18 +2,20 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/nats-io/nats.go"
 	"log"
 	"net/http"
 	"valantonini/go-coffee-service/coffee-service/data"
+	"valantonini/go-coffee-service/coffee-service/events"
 )
 
 func main() {
 	repository, _ := data.InitRepository()
+	nc, err := nats.Connect("nats://nats-server:4222")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		printRoutes(w, r)
-	})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
 	http.HandleFunc("/list", func(w http.ResponseWriter, r *http.Request) {
 		data := repository.Find()
@@ -48,12 +50,15 @@ func main() {
 			return
 		}
 
+		nc.Publish(events.CoffeeAdded, res)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	})
 
-	fmt.Printf("Starting server at port 8080\n")
+	log.Println("Starting server at port 8080")
+
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
@@ -13,6 +14,7 @@ import (
 	"testing"
 	"time"
 	"valantonini/go-coffee-service/coffee-service/data/entities"
+	"valantonini/go-coffee-service/coffee-service/events"
 )
 
 var urlStem = os.Getenv("URL_STEM")
@@ -20,6 +22,10 @@ var urlStem = os.Getenv("URL_STEM")
 func TestCoffees(t *testing.T) {
 	if os.Getenv("INTEGRATION_TESTS") == "" {
 		t.Skip()
+	}
+	nc, err := nats.Connect("nats://nats-server:4222")
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 
 	t.Run("should get all coffees", func(t *testing.T) {
@@ -39,6 +45,11 @@ func TestCoffees(t *testing.T) {
 	})
 
 	t.Run("should add coffee", func(t *testing.T) {
+		c := make(chan string, 1)
+		nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
+			c <- string(m.Data)
+		})
+
 		coffeeName := uuid.New()
 		var jsonData = []byte(fmt.Sprintf(`{
 			"name": "%v"
@@ -59,6 +70,16 @@ func TestCoffees(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotZero(t, coffee.ID)
 		assert.Equal(t, coffeeName.String(), coffee.Name)
+
+		select {
+		case res := <-c:
+			json.Unmarshal([]byte(res), &coffee)
+			assert.NotZero(t, coffee.ID)
+			assert.Equal(t, coffeeName.String(), coffee.Name)
+		case <-time.After(3 * time.Second):
+			assert.Fail(t, fmt.Sprintf("event %v not received", events.CoffeeAdded))
+		}
+
 	})
 }
 

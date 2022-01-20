@@ -8,9 +8,10 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 
 ## caveats
 
-- i am new to go
+- i am new to go and many things aren't in their final shape
 - striving to use as few dependencies as possible to understand the problems libraries and frameworks are addressing 
 - secret management will not be production ready
+- many variables are inline for the moment and need to be extracted out to env
 
 
 ## env
@@ -21,6 +22,22 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 
 ```bash
 docker network create -d bridge coffee-service-network
+```
+
+### optional env
+
+nats realtime monitoring
+
+```bash
+go get github.com/nats-io/nats-top
+
+nats-top
+```
+
+nats command line tool (osx)
+```bash
+brew tap nats-io/nats-tools
+brew install nats-io/nats-tools/nats
 ```
 
 ## run
