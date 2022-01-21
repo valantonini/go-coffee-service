@@ -1,5 +1,8 @@
 MODULE_DIRS =  ./coffee-service
 
+restore:
+	@$(foreach dir,$(MODULE_DIRS),(cd $(dir) && go mod download) &&) true
+
 test:
 	@$(foreach dir,$(MODULE_DIRS),(cd $(dir) && go test -v ./...) &&) true
 
