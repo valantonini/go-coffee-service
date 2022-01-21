@@ -15,4 +15,6 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Integration tests
-      run: make integration
+      run: |
+        make test
+        make integration
