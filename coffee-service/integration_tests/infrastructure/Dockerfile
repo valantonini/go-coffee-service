@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY ./ ./
 
-RUN chmod +x ./integration_tests/infrastructure/wait-for-it.sh ./integration_tests/infrastructure/docker-entrypoint.sh
+RUN chmod +x ./integration_tests/infrastructure/wait-for-it.sh ./integration_tests/infrastructure/docker-entrypoint.sh $COFFEE_SERVICE_URL
 
 ENV INTEGRATION_TESTS=1
 

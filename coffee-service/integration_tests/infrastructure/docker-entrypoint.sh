@@ -6,7 +6,7 @@ set -e
 
 # Wait for the backend to be up, if we know where it is.
 #if [ -n "$CUSTOMERS_HOST" ]; then
-  /app/integration_tests/infrastructure/wait-for-it.sh "api:8080" -t 5
+  /app/integration_tests/infrastructure/wait-for-it.sh $WAIT_FOR -t 5
 #fi
 
 # Run the main container command.

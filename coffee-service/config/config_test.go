@@ -12,7 +12,7 @@ func TestConfig(t *testing.T) {
 		os.Setenv(bindAddressKey, bindAddress)
 		defer os.Unsetenv(bindAddressKey)
 
-		config, err := NewFromEnv()
+		config, err := NewConfigFromEnv()
 
 		if err != nil {
 			t.Error(err)
@@ -25,7 +25,7 @@ func TestConfig(t *testing.T) {
 
 	t.Run("defaults to local when not supplied in env", func(t *testing.T) {
 		bindAddress := "localhost:80"
-		config, err := NewFromEnv()
+		config, err := NewConfigFromEnv()
 
 		if err != nil {
 			t.Error(err)
@@ -37,7 +37,7 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("gets a default logger", func(t *testing.T) {
-		config, err := NewFromEnv()
+		config, err := NewConfigFromEnv()
 
 		if err != nil {
 			t.Error(err)

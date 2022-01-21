@@ -15,8 +15,8 @@ type Config struct {
 	Logger      *log.Logger
 }
 
-// NewFromEnv creates a Config from the environment variables
-func NewFromEnv() (*Config, error) {
+// NewConfigFromEnv creates a Config from the environment variables
+func NewConfigFromEnv() (*Config, error) {
 	logger := log.Default()
 
 	bindAddress := os.Getenv(BindAddress)

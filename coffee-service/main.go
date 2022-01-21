@@ -5,11 +5,16 @@ import (
 	"github.com/nats-io/nats.go"
 	"log"
 	"net/http"
+	"valantonini/go-coffee-service/coffee-service/config"
 	"valantonini/go-coffee-service/coffee-service/data"
 	"valantonini/go-coffee-service/coffee-service/events"
 )
 
 func main() {
+	cfg, err := config.NewConfigFromEnv()
+	if err != nil {
+		panic("unable to create configuration")
+	}
 	repository, _ := data.InitRepository()
 	nc, err := nats.Connect("nats://nats-server:4222")
 
@@ -57,9 +62,9 @@ func main() {
 		w.Write(res)
 	})
 
-	log.Println("Starting server at port 8080")
+	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(cfg.BindAddress, nil); err != nil {
 		log.Fatal(err)
 	}
 }

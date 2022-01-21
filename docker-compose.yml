@@ -4,12 +4,14 @@ services:
     build:
       context: ./coffee-service
       dockerfile: Dockerfile
+    environment:
+      - BIND_ADDRESS=api:80
     ports:
-      - "8080:8080"
+      - "8080:80"
     networks:
       - coffee-service-network
     depends_on:
-      - nats
+      - nats-server
   nats-server:
     image: nats
     ports:

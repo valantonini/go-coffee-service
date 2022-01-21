@@ -17,7 +17,7 @@ import (
 	"valantonini/go-coffee-service/coffee-service/events"
 )
 
-var urlStem = os.Getenv("URL_STEM")
+var urlStem = os.Getenv("COFFEE_SERVICE_URL")
 
 func TestCoffees(t *testing.T) {
 	if os.Getenv("INTEGRATION_TESTS") == "" {
@@ -98,6 +98,9 @@ func doRequest(requestCtx requestContext) []byte {
 	requestCtx.t.Helper()
 
 	url := fmt.Sprintf("%v%v", urlStem, requestCtx.url)
+
+	fmt.Printf("requesting %v\n", url)
+
 	req, err := http.NewRequest(requestCtx.httpMethod, url, requestCtx.body)
 	assert.NoError(requestCtx.t, err)
 
