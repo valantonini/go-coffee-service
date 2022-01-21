@@ -25,21 +25,8 @@ func main() {
 	}
 	cfg.Logger.Println("connected to nats")
 
-	http.HandleFunc("/list", func(w http.ResponseWriter, r *http.Request) {
-		data := repository.Find()
-
-		res, err := data.ToJSON()
-		if err != nil {
-			log.Printf("Error during JSON marshal. Err: %s", err)
-			http.Error(w, "500 internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(res)
-	})
-
+	coffeeService := service.NewCoffeeService(cfg)
+	http.HandleFunc("/list", coffeeService.List)
 	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			printRoutes(w, r)
