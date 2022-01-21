@@ -94,24 +94,24 @@ var client = http.Client{
 	Timeout: time.Second * 2,
 }
 
-func doRequest(ctx requestContext) []byte {
-	ctx.t.Helper()
+func doRequest(requestCtx requestContext) []byte {
+	requestCtx.t.Helper()
 
-	url := fmt.Sprintf("%v%v", urlStem, ctx.url)
-	req, err := http.NewRequest(ctx.httpMethod, url, ctx.body)
-	assert.NoError(ctx.t, err)
+	url := fmt.Sprintf("%v%v", urlStem, requestCtx.url)
+	req, err := http.NewRequest(requestCtx.httpMethod, url, requestCtx.body)
+	assert.NoError(requestCtx.t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
 	res, err := client.Do(req)
-	assert.NoError(ctx.t, err)
+	assert.NoError(requestCtx.t, err)
 
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
-	assert.NoError(ctx.t, err)
+	assert.NoError(requestCtx.t, err)
 
 	return body
 }

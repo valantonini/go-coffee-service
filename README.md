@@ -43,6 +43,9 @@ brew install nats-io/nats-tools/nats
 ## run
 
 ```bash
+# run unit tests
+make test
+
 # run the integration tests
 make integration
 
