@@ -7,8 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
@@ -17,7 +15,6 @@ import (
 	"valantonini/go-coffee-service/coffee-service/events"
 )
 
-var urlStem = os.Getenv("COFFEE_SERVICE_URL")
 var natsAddress = os.Getenv("NATS_ADDRESS")
 
 func TestCoffees(t *testing.T) {
@@ -30,14 +27,14 @@ func TestCoffees(t *testing.T) {
 	}
 
 	t.Run("should get all coffees", func(t *testing.T) {
-		req := requestContext{
+		req := RequestContext{
 			t:          t,
 			url:        "/list",
 			httpMethod: http.MethodGet,
 			body:       nil,
 		}
 
-		body := doRequest(req)
+		body := DoRequest(req)
 		bd := entities.Coffees{}
 		err := json.Unmarshal(body, &bd)
 
@@ -56,14 +53,14 @@ func TestCoffees(t *testing.T) {
 			"name": "%v"
 		}`, coffeeName))
 
-		req := requestContext{
+		req := RequestContext{
 			t:          t,
 			url:        "/add",
 			httpMethod: http.MethodPost,
 			body:       bytes.NewBuffer(jsonData),
 		}
 
-		body := doRequest(req)
+		body := DoRequest(req)
 
 		coffee := entities.Coffee{}
 		err := json.Unmarshal(body, &coffee)
@@ -80,42 +77,5 @@ func TestCoffees(t *testing.T) {
 		case <-time.After(3 * time.Second):
 			assert.Fail(t, fmt.Sprintf("event %v not received", events.CoffeeAdded))
 		}
-
 	})
-}
-
-type requestContext struct {
-	t          *testing.T
-	url        string
-	httpMethod string
-	body       io.Reader
-}
-
-var client = http.Client{
-	Timeout: time.Second * 2,
-}
-
-func doRequest(requestCtx requestContext) []byte {
-	requestCtx.t.Helper()
-
-	url := fmt.Sprintf("%v%v", urlStem, requestCtx.url)
-
-	fmt.Printf("requesting %v\n", url)
-
-	req, err := http.NewRequest(requestCtx.httpMethod, url, requestCtx.body)
-	assert.NoError(requestCtx.t, err)
-
-	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
-	res, err := client.Do(req)
-	assert.NoError(requestCtx.t, err)
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
-	assert.NoError(requestCtx.t, err)
-
-	return body
 }

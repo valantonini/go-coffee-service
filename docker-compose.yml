@@ -5,7 +5,7 @@ services:
       context: ./coffee-service
       dockerfile: Dockerfile
     environment:
-      - BIND_ADDRESS=api:80
+      - BIND_ADDRESS=:80
       - NATS_ADDRESS=nats://nats:4222
     ports:
       - "8080:80"

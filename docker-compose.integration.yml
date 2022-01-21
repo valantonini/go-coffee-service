@@ -8,7 +8,6 @@ services:
       - WAIT_FOR=api:80
       - COFFEE_SERVICE_URL=http://api:80
       - NATS_ADDRESS=nats://nats:4222
-
     networks:
       - coffee-service-network
     depends_on:

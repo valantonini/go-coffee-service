@@ -8,6 +8,7 @@ import (
 	"valantonini/go-coffee-service/coffee-service/config"
 	"valantonini/go-coffee-service/coffee-service/data"
 	"valantonini/go-coffee-service/coffee-service/events"
+	"valantonini/go-coffee-service/coffee-service/service"
 )
 
 func main() {
@@ -63,6 +64,8 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	})
+
+	http.Handle("/health", service.NewHealth(cfg.Logger))
 
 	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)
 
