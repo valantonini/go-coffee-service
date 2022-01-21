@@ -16,11 +16,13 @@ func main() {
 		panic("unable to create configuration")
 	}
 	repository, _ := data.InitRepository()
-	nc, err := nats.Connect("nats://nats-server:4222")
 
+	cfg.Logger.Printf("connecting to nats on %v\n", cfg.NatsAddress)
+	nc, err := nats.Connect(cfg.NatsAddress)
 	if err != nil {
-		log.Fatal(err.Error())
+		cfg.Logger.Fatal(err.Error())
 	}
+	cfg.Logger.Println("connected to nats")
 
 	http.HandleFunc("/list", func(w http.ResponseWriter, r *http.Request) {
 		data := repository.Find()

@@ -6,18 +6,19 @@ services:
       dockerfile: Dockerfile
     environment:
       - BIND_ADDRESS=api:80
+      - NATS_ADDRESS=nats://nats:4222
     ports:
       - "8080:80"
     networks:
       - coffee-service-network
     depends_on:
-      - nats-server
-  nats-server:
+      - nats
+  nats:
     image: nats
     ports:
       - "4222:4222" # nats default port
       - "8222:8222" # nats monitor port
-    command: "--name nats-server --http_port 8222"
+    command: "--name nats --http_port 8222"
     networks:
       - coffee-service-network
 

@@ -18,12 +18,13 @@ import (
 )
 
 var urlStem = os.Getenv("COFFEE_SERVICE_URL")
+var natsAddress = os.Getenv("NATS_ADDRESS")
 
 func TestCoffees(t *testing.T) {
 	if os.Getenv("INTEGRATION_TESTS") == "" {
 		t.Skip()
 	}
-	nc, err := nats.Connect("nats://nats-server:4222")
+	nc, err := nats.Connect(natsAddress)
 	if err != nil {
 		t.Fatal(err.Error())
 	}

@@ -7,11 +7,13 @@ import (
 
 const (
 	BindAddress string = "BIND_ADDRESS"
+	NatsAddress string = "NATS_ADDRESS"
 )
 
 // Config defines the service runtime configuration
 type Config struct {
 	BindAddress string
+	NatsAddress string
 	Logger      *log.Logger
 }
 
@@ -24,7 +26,10 @@ func NewConfigFromEnv() (*Config, error) {
 		bindAddress = "localhost:80"
 	}
 
-	logger.Printf("Binding to %s", bindAddress)
+	natsAddress := os.Getenv(NatsAddress)
+	if natsAddress == "" {
+		natsAddress = "nats://nats:4222"
+	}
 
-	return &Config{bindAddress, logger}, nil
+	return &Config{bindAddress, natsAddress, logger}, nil
 }

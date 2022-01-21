@@ -32,7 +32,37 @@ func TestConfig(t *testing.T) {
 		}
 
 		if config.BindAddress != bindAddress {
-			t.Errorf("bind address not set. got %v", config.BindAddress)
+			t.Errorf("bind address defaulting set. got %v", config.BindAddress)
+		}
+	})
+
+	t.Run("gets nats address when supplied in env", func(t *testing.T) {
+		natsAddressKey := "NATS_ADDRESS"
+		natsAddress := "nats://custom:1234"
+		os.Setenv(natsAddressKey, natsAddress)
+		defer os.Unsetenv(natsAddressKey)
+
+		config, err := NewConfigFromEnv()
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		if config.NatsAddress != natsAddress {
+			t.Errorf("nats address not set. got %v", config.NatsAddress)
+		}
+	})
+
+	t.Run("defaults nats address", func(t *testing.T) {
+		natsAddress := "nats://nats:4222"
+		config, err := NewConfigFromEnv()
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		if config.NatsAddress != natsAddress {
+			t.Errorf("nats address not defaulting. got %v", config.NatsAddress)
 		}
 	})
 
