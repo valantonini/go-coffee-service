@@ -29,7 +29,7 @@ func TestCoffees(t *testing.T) {
 	t.Run("should get all coffees", func(t *testing.T) {
 		req := RequestContext{
 			t:          t,
-			url:        "/list",
+			url:        "/coffees",
 			httpMethod: http.MethodGet,
 			body:       nil,
 		}
@@ -44,9 +44,10 @@ func TestCoffees(t *testing.T) {
 
 	t.Run("should add coffee", func(t *testing.T) {
 		c := make(chan string, 1)
-		nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
+		_, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
 			c <- string(m.Data)
 		})
+		assert.NoError(t, err)
 
 		coffeeName := uuid.New()
 		var jsonData = []byte(fmt.Sprintf(`{
@@ -55,7 +56,7 @@ func TestCoffees(t *testing.T) {
 
 		req := RequestContext{
 			t:          t,
-			url:        "/add",
+			url:        "/coffee/add",
 			httpMethod: http.MethodPost,
 			body:       bytes.NewBuffer(jsonData),
 		}
@@ -63,7 +64,7 @@ func TestCoffees(t *testing.T) {
 		body := DoRequest(req)
 
 		coffee := entities.Coffee{}
-		err := json.Unmarshal(body, &coffee)
+		err = json.Unmarshal(body, &coffee)
 
 		assert.NoError(t, err)
 		assert.NotZero(t, coffee.ID)
@@ -71,7 +72,8 @@ func TestCoffees(t *testing.T) {
 
 		select {
 		case res := <-c:
-			json.Unmarshal([]byte(res), &coffee)
+			err := json.Unmarshal([]byte(res), &coffee)
+			assert.NoError(t, err)
 			assert.NotZero(t, coffee.ID)
 			assert.Equal(t, coffeeName.String(), coffee.Name)
 		case <-time.After(3 * time.Second):

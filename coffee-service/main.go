@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/nats-io/nats.go"
-	"log"
 	"net/http"
 	"valantonini/go-coffee-service/coffee-service/config"
 	"valantonini/go-coffee-service/coffee-service/service"
@@ -24,8 +22,8 @@ func main() {
 
 	cfg.Logger.Println("registering coffee services")
 	coffeeService := service.NewCoffeeService(cfg, nc)
-	http.HandleFunc("/list", coffeeService.List)
-	http.HandleFunc("/add", coffeeService.Add)
+	http.HandleFunc("/coffees", coffeeService.List)
+	http.HandleFunc("/coffee/add", coffeeService.Add)
 	http.Handle("/health", service.NewHealth(cfg.Logger))
 	cfg.Logger.Println("coffee services registered")
 
@@ -33,21 +31,4 @@ func main() {
 	if err := http.ListenAndServe(cfg.BindAddress, nil); err != nil {
 		cfg.Logger.Fatal(err)
 	}
-}
-func printRoutes(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"GET /list": "retrieves a list of all coffees",
-		"POST /add": "adds a coffee",
-	}
-
-	res, err := json.Marshal(data)
-	if err != nil {
-		log.Printf("Error during JSON marshal. Err: %s", err)
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
 }
