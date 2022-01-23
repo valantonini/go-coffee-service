@@ -5,12 +5,11 @@ import (
 	"github.com/nats-io/nats.go"
 	"log"
 	"net/http"
-	"valantonini/go-coffee-service/coffee-service/config"
 	"valantonini/go-coffee-service/coffee-service/data"
 	"valantonini/go-coffee-service/coffee-service/events"
 )
 
-// A coffee service handler
+// CoffeeService defines the operations the service supports
 type CoffeeService interface {
 	List(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
@@ -18,19 +17,20 @@ type CoffeeService interface {
 
 type coffeeService struct {
 	repository data.Repository
-	nats       nats.Conn
-	logger     log.Logger
+	nats       *nats.Conn
+	logger     *log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(c *config.Config, nc *nats.Conn) CoffeeService {
-	return &coffeeService{*c.Repository, *nc, *c.Logger}
+func NewCoffeeService(repo data.Repository, nc *nats.Conn, logger *log.Logger) CoffeeService {
+	return &coffeeService{repo, nc, logger}
 }
 
+// List retrieves a list of coffees
 func (c *coffeeService) List(w http.ResponseWriter, r *http.Request) {
-	data := c.repository.Find()
+	result := c.repository.Find()
 
-	res, err := data.ToJSON()
+	res, err := result.ToJSON()
 	if err != nil {
 		c.logger.Printf("Error during JSON marshal. Err: %s", err)
 		http.Error(w, "500 internal server error", http.StatusInternalServerError)
@@ -42,6 +42,7 @@ func (c *coffeeService) List(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
+// Add adds a new coffee from the json body
 func (c *coffeeService) Add(w http.ResponseWriter, r *http.Request) {
 	var requestData map[string]string
 	decoder := json.NewDecoder(r.Body)

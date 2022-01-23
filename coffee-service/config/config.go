@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 	"os"
-	"valantonini/go-coffee-service/coffee-service/data"
 )
 
 const (
@@ -15,12 +14,11 @@ const (
 type Config struct {
 	BindAddress string
 	NatsAddress string
-	Repository  *data.Repository
 	Logger      *log.Logger
 }
 
-// NewConfigFromEnv creates a Config from the environment variables
-func NewConfigFromEnv() (*Config, error) {
+// NewConfigFromEnv creates a Config from the environment variables with sensible fallbacks
+func NewConfigFromEnv() *Config {
 	logger := log.Default()
 
 	bindAddress := os.Getenv(BindAddress)
@@ -33,10 +31,5 @@ func NewConfigFromEnv() (*Config, error) {
 		natsAddress = "nats://nats:4222"
 	}
 
-	repo, err := data.InitRepository()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Config{bindAddress, natsAddress, &repo, logger}, nil
+	return &Config{bindAddress, natsAddress, logger}
 }
