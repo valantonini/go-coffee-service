@@ -1,17 +1,16 @@
+//go:build integration
+// +build integration
+
 package integration_tests
 
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"net/http"
-	"os"
 	"testing"
 )
 
 func TestHealth(t *testing.T) {
-	if os.Getenv("INTEGRATION_TESTS") == "" {
-		t.Skip()
-	}
 	req := RequestContext{
 		t:          t,
 		url:        "/health",

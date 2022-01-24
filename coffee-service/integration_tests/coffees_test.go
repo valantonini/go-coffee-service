@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration_tests
 
 import (
@@ -18,9 +21,6 @@ import (
 var natsAddress = os.Getenv("NATS_ADDRESS")
 
 func TestCoffees(t *testing.T) {
-	if os.Getenv("INTEGRATION_TESTS") == "" {
-		t.Skip()
-	}
 	nc, err := nats.Connect(natsAddress)
 	if err != nil {
 		t.Fatal(err.Error())
