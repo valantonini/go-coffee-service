@@ -7,6 +7,6 @@ test:
 	@$(foreach dir,$(MODULE_DIRS),(cd $(dir) && go test -v ./...) &&) true
 
 integration:
-	docker compose -f docker-compose.yml -f docker-compose.integration.yml up --build --force-recreate --abort-on-container-exit --remove-orphans
+	docker compose -f docker-compose.yml -f docker-compose.integration.yml up --build --abort-on-container-exit --remove-orphans
 
 test_all: test integration

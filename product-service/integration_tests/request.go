@@ -21,7 +21,7 @@ type RequestContext struct {
 }
 
 var client = http.Client{
-	Timeout: time.Second * 2,
+	Timeout: time.Second * 5,
 }
 
 func DoRequest(requestCtx RequestContext) []byte {
