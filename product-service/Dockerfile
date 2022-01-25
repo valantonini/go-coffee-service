@@ -1,5 +1,6 @@
 FROM golang:1.17-alpine AS builder
 
+# copy config over to ../config (relative to app) for local module replacements
 WORKDIR /config
 COPY ./config/ ./
 

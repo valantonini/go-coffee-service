@@ -12,7 +12,11 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 - striving to use as few dependencies as possible to understand the problems libraries and frameworks are addressing 
 - secret management will not be production ready
 - many variables are inline for the moment and need to be extracted out to env
-
+- still to do:
+  - durable messaging
+  - message retry
+  - outbox pattern
+  - implement a db
 
 ## env
 
