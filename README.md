@@ -28,7 +28,18 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 docker network create -d bridge coffee-service-network
 ```
 
-### optional env
+## run
+
+```bash
+# run the coffee-services
+docker compose up
+
+# run unit and integration tests
+make test_all
+```
+
+
+## optional tooling
 
 nats realtime monitoring
 
@@ -42,17 +53,4 @@ nats command line tool (osx)
 ```bash
 brew tap nats-io/nats-tools
 brew install nats-io/nats-tools/nats
-```
-
-## run
-
-```bash
-# run unit tests
-make test
-
-# run the integration tests
-make integration
-
-# run the coffee-service
-docker compose up
 ```
