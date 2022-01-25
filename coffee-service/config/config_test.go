@@ -10,45 +10,43 @@ func TestConfig(t *testing.T) {
 	natsAddressKey := "NATS_ADDRESS"
 
 	t.Run("gets bind address when supplied in env", func(t *testing.T) {
-		bindAddress := "http://coffee-service:44313"
-		os.Setenv(bindAddressKey, bindAddress)
+		os.Setenv(bindAddressKey, "http://coffee-service:44313")
 		defer os.Unsetenv(bindAddressKey)
 
 		config := NewConfigFromEnv()
 
-		if config.BindAddress != bindAddress {
+		if config.BindAddress != "http://coffee-service:44313" {
 			t.Errorf("bind address not set. got %v", config.BindAddress)
 		}
 	})
 
 	t.Run("defaults to local when not supplied in env", func(t *testing.T) {
-		bindAddress := "localhost:80"
 		os.Unsetenv(bindAddressKey)
+
 		config := NewConfigFromEnv()
 
-		if config.BindAddress != bindAddress {
+		if config.BindAddress != "localhost:80" {
 			t.Errorf("bind address not defaulting set. got %v", config.BindAddress)
 		}
 	})
 
 	t.Run("gets nats address when supplied in env", func(t *testing.T) {
-		natsAddress := "nats://custom:1234"
-		os.Setenv(natsAddressKey, natsAddress)
+		os.Setenv(natsAddressKey, "nats://custom:1234")
 		defer os.Unsetenv(natsAddressKey)
 
 		config := NewConfigFromEnv()
 
-		if config.NatsAddress != natsAddress {
+		if config.NatsAddress != "nats://custom:1234" {
 			t.Errorf("nats address not set. got %v", config.NatsAddress)
 		}
 	})
 
 	t.Run("defaults nats address", func(t *testing.T) {
-		natsAddress := "nats://nats:4222"
 		os.Unsetenv(natsAddressKey)
+
 		config := NewConfigFromEnv()
 
-		if config.NatsAddress != natsAddress {
+		if config.NatsAddress != "nats://nats:4222" {
 			t.Errorf("nats address not defaulting. got %v", config.NatsAddress)
 		}
 	})
