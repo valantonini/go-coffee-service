@@ -8,13 +8,13 @@ RUN go mod download
 
 COPY ./ ./
 
-RUN go build -o coffee-service .
+RUN go build -o order-service .
 
 FROM alpine:3.14 AS runtime
 
-EXPOSE 9000
+EXPOSE 9001
 
 WORKDIR /app
-COPY --from=builder /app/coffee-service /app
+COPY --from=builder /app/order-service /app
 
-ENTRYPOINT ["./coffee-service"]
+ENTRYPOINT ["./order-service"]
