@@ -10,17 +10,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
+	"github.com/valantonini/go-coffee-service/product-service/data/entities"
+	"github.com/valantonini/go-coffee-service/product-service/events"
 	"net/http"
 	"os"
 	"testing"
 	"time"
-	"valantonini/go-coffee-service/product-service/data/entities"
-	"valantonini/go-coffee-service/product-service/events"
 )
 
 var natsAddress = os.Getenv("NATS_ADDRESS")
 
-func TestProducts(t *testing.T) {
+func Test_ProductService(t *testing.T) {
 	nc, err := nats.Connect(natsAddress)
 	if err != nil {
 		t.Fatal(err.Error())

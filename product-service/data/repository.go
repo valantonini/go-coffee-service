@@ -1,6 +1,6 @@
 package data
 
-import "valantonini/go-coffee-service/product-service/data/entities"
+import "github.com/valantonini/go-coffee-service/product-service/data/entities"
 
 var coffees = entities.Coffees{
 	entities.Coffee{ID: 1, Name: "espresso"},

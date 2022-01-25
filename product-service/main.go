@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/nats-io/nats.go"
+	"github.com/valantonini/go-coffee-service/config"
+	"github.com/valantonini/go-coffee-service/product-service/data"
+	"github.com/valantonini/go-coffee-service/product-service/service"
 	"net/http"
-	"valantonini/go-coffee-service/product-service/config"
-	"valantonini/go-coffee-service/product-service/data"
-	"valantonini/go-coffee-service/product-service/service"
 )
 
 func main() {

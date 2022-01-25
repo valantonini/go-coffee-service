@@ -1,12 +1,12 @@
 FROM golang:1.17-alpine AS builder
 
+WORKDIR /config
+COPY ./config/ ./
+
 WORKDIR /app/
-
-COPY go.* ./
-
+COPY product-service/go.* ./
 RUN go mod download
-
-COPY ./ ./
+COPY ./product-service/ ./
 
 RUN go build -o product-service .
 

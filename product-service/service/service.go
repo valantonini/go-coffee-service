@@ -3,10 +3,10 @@ package service
 import (
 	"encoding/json"
 	"github.com/nats-io/nats.go"
+	"github.com/valantonini/go-coffee-service/product-service/data"
+	"github.com/valantonini/go-coffee-service/product-service/events"
 	"log"
 	"net/http"
-	"valantonini/go-coffee-service/product-service/data"
-	"valantonini/go-coffee-service/product-service/events"
 )
 
 // ProductService defines the operations the service supports

@@ -1,11 +1,14 @@
-module valantonini/go-coffee-service/product-service
+module github.com/valantonini/go-coffee-service/product-service
 
 go 1.17
+
+replace github.com/valantonini/go-coffee-service/config => ../config
 
 require (
 	github.com/google/uuid v1.3.0
 	github.com/nats-io/nats.go v1.13.1-0.20211122170419-d7c1d78a50fc
 	github.com/stretchr/testify v1.7.0
+	github.com/valantonini/go-coffee-service/config v1.0.0
 )
 
 require (

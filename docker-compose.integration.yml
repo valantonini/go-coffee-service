@@ -1,11 +1,11 @@
 version: '3.4'
 services:
-  test:
+  product-service-integration-test:
     build:
-      context: product-service
-      dockerfile: integration_tests/infrastructure/Dockerfile
+      context: .
+      dockerfile: product-service/integration_tests/infrastructure/Dockerfile
     environment:
-      - WAIT_FOR=api:80
+      - WAIT_FOR=product-service:80
       - PRODUCT_SERVICE_URL=http://product-service:80
       - NATS_ADDRESS=nats://nats:4222
     networks:

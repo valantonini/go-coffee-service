@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var urlStem = os.Getenv("COFFEE_SERVICE_URL")
+var urlStem = os.Getenv("PRODUCT_SERVICE_URL")
 
 type RequestContext struct {
 	t          *testing.T

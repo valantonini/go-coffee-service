@@ -2,8 +2,8 @@ version: '3.4'
 services:
   product-service:
     build:
-      context: product-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: product-service/Dockerfile
     environment:
       - BIND_ADDRESS=:80
       - NATS_ADDRESS=nats://nats:4222
