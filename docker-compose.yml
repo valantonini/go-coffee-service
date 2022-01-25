@@ -1,8 +1,8 @@
 version: '3.4'
 services:
-  api:
+  product-service:
     build:
-      context: ./coffee-service
+      context: product-service
       dockerfile: Dockerfile
     environment:
       - BIND_ADDRESS=:80
@@ -26,7 +26,7 @@ services:
       - coffee-service-network
     depends_on:
       - nats
-      - api
+      - product-service
   nats:
     image: nats
     ports:
