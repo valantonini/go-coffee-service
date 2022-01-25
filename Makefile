@@ -1,4 +1,4 @@
-MODULE_DIRS =  ./coffee-service
+MODULE_DIRS =  ./product-service ./order-service ./config
 
 restore:
 	@$(foreach dir,$(MODULE_DIRS),(cd $(dir) && go mod download) &&) true
