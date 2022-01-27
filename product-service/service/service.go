@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/product-service/data"
 	"github.com/valantonini/go-coffee-service/product-service/events"
 	"log"
@@ -17,12 +16,12 @@ type ProductService interface {
 
 type productService struct {
 	repository data.Repository
-	nats       *nats.Conn
+	bus        events.Publisher
 	logger     *log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(repo data.Repository, nc *nats.Conn, logger *log.Logger) ProductService {
+func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Logger) ProductService {
 	return &productService{repo, nc, logger}
 }
 
@@ -44,21 +43,31 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 
 // Add adds a new coffee from the json body
 func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
-	var requestData map[string]string
-	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&requestData)
-	newItem := c.repository.Add(requestData["name"])
+	type addCoffeeRequest struct {
+		Name string `json:"name"`
+	}
 
-	res, err := json.Marshal(newItem)
+	var request addCoffeeRequest
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&request)
 	if err != nil {
-		c.logger.Printf("Error during JSON marshal. Err: %s", err)
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
+		c.logger.Printf("error during json marshal of request. Err: %s", err)
+		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	c.nats.Publish(events.CoffeeAdded, res)
+	newItem := c.repository.Add(request.Name)
+
+	response, err := json.Marshal(newItem)
+	if err != nil {
+		c.logger.Printf("error during json marshal of response. Err: %s", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	c.bus.Publish(events.CoffeeAdded, response)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	w.Write(response)
 }

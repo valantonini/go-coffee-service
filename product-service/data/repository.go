@@ -31,6 +31,6 @@ func (r *InMemoryRepository) Add(name string) entities.Coffee {
 	return coffee
 }
 
-func InitRepository() (Repository, error) {
+func InitInMemoryRepository() (Repository, error) {
 	return &InMemoryRepository{}, nil
 }

@@ -19,7 +19,7 @@ func main() {
 	cfg.Logger.Println("connected to nats")
 
 	cfg.Logger.Print("initialising repository")
-	repo, err := data.InitRepository()
+	repo, err := data.InitInMemoryRepository()
 	if err != nil {
 		cfg.Logger.Fatalf("unable to initialise repo")
 	}

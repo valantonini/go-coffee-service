@@ -1,9 +1,10 @@
 package integration_tests
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -13,11 +14,13 @@ import (
 
 var urlStem = os.Getenv("PRODUCT_SERVICE_URL")
 
+// var urlStem = "http://localhost:8080"
+
 type RequestContext struct {
 	t          *testing.T
 	url        string
 	httpMethod string
-	body       io.Reader
+	body       interface{}
 }
 
 var client = http.Client{
@@ -29,9 +32,13 @@ func DoRequest(requestCtx RequestContext) []byte {
 
 	url := fmt.Sprintf("%v%v", urlStem, requestCtx.url)
 
-	fmt.Printf("requesting %v\n", url)
+	jsonMapAsStringFormat, err := json.Marshal(requestCtx.body)
+	if err != nil {
+		requestCtx.t.Error(err.Error())
+	}
+	fmt.Printf("requesting %v with\n %v\n", url, string(jsonMapAsStringFormat))
 
-	req, err := http.NewRequest(requestCtx.httpMethod, url, requestCtx.body)
+	req, err := http.NewRequest(requestCtx.httpMethod, url, bytes.NewBuffer(jsonMapAsStringFormat))
 	assert.NoError(requestCtx.t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -43,8 +50,8 @@ func DoRequest(requestCtx RequestContext) []byte {
 		defer res.Body.Close()
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	responseJson, err := ioutil.ReadAll(res.Body)
 	assert.NoError(requestCtx.t, err)
 
-	return body
+	return responseJson
 }
