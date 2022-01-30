@@ -73,7 +73,7 @@ func Test_ProductService(t *testing.T) {
 			Is.NoErr(err)
 			Is.True(addedCoffee.ID > 0)
 			Is.Equal(addedCoffee.Name, newCoffee.Name)
-		case <-time.After(3 * time.Second):
+		case <-time.After(5 * time.Second):
 			fmt.Println("event not received")
 			Is.Fail()
 		}
