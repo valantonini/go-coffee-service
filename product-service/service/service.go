@@ -32,7 +32,7 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 	res, err := result.ToJSON()
 	if err != nil {
 		c.logger.Printf("Error during JSON marshal. Err: %s", err)
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
+		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
@@ -52,7 +52,12 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&request)
 	if err != nil {
 		c.logger.Printf("error during json marshal of request. Err: %s", err)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		http.Error(w, "\"bad request\"", http.StatusBadRequest)
+		return
+	}
+
+	if request.Name == "" {
+		http.Error(w, "\"bad request\"", http.StatusBadRequest)
 		return
 	}
 
@@ -61,7 +66,7 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 	response, err := json.Marshal(newItem)
 	if err != nil {
 		c.logger.Printf("error during json marshal of response. Err: %s", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 

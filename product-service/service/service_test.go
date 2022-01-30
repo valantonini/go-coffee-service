@@ -57,4 +57,33 @@ func TestProductService_Add(t *testing.T) {
 		Is.NoErr(err)
 		Is.Equal(newCoffee.Name, coffee.Name)
 	})
+
+	t.Run("should return bad request if no name specified", func(t *testing.T) {
+		repository, _ := data.InitInMemoryRepository()
+		publisher := mockPublisher{}
+		service := NewCoffeeService(repository, &publisher, log.Default())
+
+		coffee := struct {
+			Name string `json:"name"`
+		}{
+			Name: "",
+		}
+
+		b := new(bytes.Buffer)
+		err := json.NewEncoder(b).Encode(coffee)
+		Is.NoErr(err)
+
+		req, _ := http.NewRequest("GET", "/coffee/add", b)
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(service.Add)
+		handler.ServeHTTP(rr, req)
+
+		Is.Equal(rr.Code, http.StatusBadRequest)
+
+		var response string
+		err = json.Unmarshal(rr.Body.Bytes(), &response)
+		Is.NoErr(err)
+		Is.Equal(response, "bad request")
+	})
 }
