@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/config"
 	"github.com/valantonini/go-coffee-service/product-service/data"
@@ -27,9 +28,12 @@ func main() {
 
 	cfg.Logger.Println("registering product service handlers")
 	productService := service.NewCoffeeService(repo, nc, cfg.Logger)
-	http.HandleFunc("/coffees", productService.List)
-	http.HandleFunc("/coffee/add", productService.Add)
-	http.Handle("/health", service.NewHealth(cfg.Logger))
+	r := mux.NewRouter()
+	r.HandleFunc("/coffees", productService.List)
+	r.HandleFunc("/coffee/add", productService.Add)
+	r.HandleFunc("/coffee/{id}", productService.Get)
+	r.Handle("/health", service.NewHealth(cfg.Logger))
+	http.Handle("/", r)
 	cfg.Logger.Println("product services registered")
 
 	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)

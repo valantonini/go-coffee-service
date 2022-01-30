@@ -2,16 +2,19 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/valantonini/go-coffee-service/product-service/data"
 	"github.com/valantonini/go-coffee-service/product-service/events"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // ProductService defines the operations the service supports
 type ProductService interface {
 	List(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
+	Get(w http.ResponseWriter, r *http.Request)
 }
 
 type productService struct {
@@ -27,7 +30,9 @@ func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Log
 
 // List retrieves a list of coffees
 func (c *productService) List(w http.ResponseWriter, r *http.Request) {
-	result := c.repository.Find()
+	w.Header().Set("Content-Type", "application/json")
+
+	result := c.repository.GetAll()
 
 	res, err := result.ToJSON()
 	if err != nil {
@@ -36,7 +41,6 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
 	if err != nil {
@@ -47,6 +51,8 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 
 // Add adds a new coffee from the json body
 func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type addCoffeeRequest struct {
 		Name string `json:"name"`
 	}
@@ -79,7 +85,42 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 		c.logger.Println(err)
 	}
 
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(res)
+	if err != nil {
+		c.logger.Println(err)
+	}
+}
+
+// Get retrieves a coffee by id
+func (c *productService) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "\"bad request\"", http.StatusBadRequest)
+		return
+	}
+
+	coffee, err := c.repository.Get(id)
+	if err != nil {
+		switch err {
+		case data.NotFound:
+			http.Error(w, "\"not found\"", http.StatusNotFound)
+			return
+		default:
+			http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
+		}
+	}
+
+	res, err := json.Marshal(coffee)
+	if err != nil {
+		c.logger.Printf("error during json marshal of res. Err: %s", err)
+		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
 	if err != nil {

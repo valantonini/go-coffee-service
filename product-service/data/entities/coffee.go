@@ -9,7 +9,7 @@ type Coffees []Coffee
 
 // Coffee defines a coffee in the database
 type Coffee struct {
-	ID   int    `gorm:"primaryKey" json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 

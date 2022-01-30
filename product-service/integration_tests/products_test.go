@@ -40,6 +40,23 @@ func Test_ProductService(t *testing.T) {
 		Is.True(len(bd) > 0)
 	})
 
+	t.Run("should get coffee by id", func(t *testing.T) {
+		req := RequestContext{
+			t:          t,
+			url:        "/coffee/3",
+			httpMethod: http.MethodGet,
+			body:       nil,
+		}
+
+		body := DoRequest(req)
+		bd := entities.Coffee{}
+		err := json.Unmarshal(body, &bd)
+
+		Is.NoErr(err)
+		Is.Equal(bd.ID, 3)
+		Is.Equal(bd.Name, "cappuccino")
+	})
+
 	t.Run("should add coffee", func(t *testing.T) {
 		c := make(chan string, 1)
 		_, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {

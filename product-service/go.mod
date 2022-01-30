@@ -6,6 +6,7 @@ replace github.com/valantonini/go-coffee-service/config => ../config
 
 require (
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.8.0
 	github.com/matryer/is v1.4.0
 	github.com/nats-io/nats.go v1.13.1-0.20211122170419-d7c1d78a50fc
 	github.com/stretchr/testify v1.7.0

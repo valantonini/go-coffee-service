@@ -1,6 +1,11 @@
 package data
 
-import "github.com/valantonini/go-coffee-service/product-service/data/entities"
+import (
+	"errors"
+	"github.com/valantonini/go-coffee-service/product-service/data/entities"
+)
+
+var NotFound = errors.New("not found")
 
 var coffees = entities.Coffees{
 	entities.Coffee{ID: 1, Name: "espresso"},
@@ -11,7 +16,8 @@ var coffees = entities.Coffees{
 
 // Repository is the command/query interface this repository supports.
 type Repository interface {
-	Find() entities.Coffees
+	Get(id int) (entities.Coffee, error)
+	GetAll() entities.Coffees
 	Add(name string) entities.Coffee
 }
 
@@ -19,8 +25,8 @@ type Repository interface {
 type InMemoryRepository struct {
 }
 
-// Find gets a list of coffees
-func (r *InMemoryRepository) Find() entities.Coffees {
+// GetAll gets a list of all coffees
+func (r *InMemoryRepository) GetAll() entities.Coffees {
 	return coffees
 }
 
@@ -29,6 +35,17 @@ func (r *InMemoryRepository) Add(name string) entities.Coffee {
 	coffee := entities.Coffee{ID: len(coffees) + 1, Name: name}
 	coffees = append(coffees, coffee)
 	return coffee
+}
+
+// Get retrieves a coffee by id
+func (r *InMemoryRepository) Get(id int) (entities.Coffee, error) {
+	for _, c := range coffees {
+		if c.ID == id {
+			return c, nil
+		}
+	}
+
+	return entities.Coffee{}, NotFound
 }
 
 func InitInMemoryRepository() (Repository, error) {
