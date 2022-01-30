@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/matryer/is"
 	"github.com/valantonini/go-coffee-service/product-service/data"
 	"github.com/valantonini/go-coffee-service/product-service/data/entities"
@@ -36,13 +35,16 @@ func TestProductService_Add(t *testing.T) {
 		service := NewCoffeeService(repository, &publisher, log.Default())
 
 		coffee := struct {
-			name string `json:"name"`
+			Name string `json:"name"`
 		}{
-			name: "doppio",
+			Name: "doppio",
 		}
 
-		body, _ := json.Marshal(coffee)
-		req, _ := http.NewRequest("GET", "/coffee/add", bytes.NewBuffer(body))
+		b := new(bytes.Buffer)
+		err := json.NewEncoder(b).Encode(coffee)
+		Is.NoErr(err)
+
+		req, _ := http.NewRequest("GET", "/coffee/add", b)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(service.Add)
@@ -51,7 +53,8 @@ func TestProductService_Add(t *testing.T) {
 		Is.Equal(rr.Code, http.StatusOK)
 
 		var newCoffee entities.Coffee
-		json.Unmarshal(rr.Body.Bytes(), &newCoffee)
-		fmt.Printf("%#v", newCoffee)
+		err = json.Unmarshal(rr.Body.Bytes(), &newCoffee)
+		Is.NoErr(err)
+		Is.Equal(newCoffee.Name, coffee.Name)
 	})
 }
