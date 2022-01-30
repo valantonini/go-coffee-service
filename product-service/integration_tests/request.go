@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -30,31 +30,33 @@ var client = http.Client{
 func DoRequest(requestCtx RequestContext) []byte {
 	requestCtx.t.Helper()
 
+	Is := is.New(requestCtx.t)
+
 	if urlStem == "" {
 		requestCtx.t.Errorf("env %v not supplied", productServiceUrlEnvKey)
 	}
 	url := fmt.Sprintf("%v%v", urlStem, requestCtx.url)
 
 	requestBody, err := json.Marshal(requestCtx.body)
-	if err != nil {
-		requestCtx.t.Error(err.Error())
-	}
+	Is.NoErr(err)
+
 	fmt.Printf("requesting %v with\n %v\n", url, string(requestBody))
 
 	req, err := http.NewRequest(requestCtx.httpMethod, url, bytes.NewBuffer(requestBody))
-	assert.NoError(requestCtx.t, err)
+	Is.NoErr(err)
 
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
 	res, err := client.Do(req)
-	assert.NoError(requestCtx.t, err)
+	Is.NoErr(err)
+
+	Is.Equal(res.Header.Get("content-type"), "application/json")
 
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
 
 	responseJson, err := ioutil.ReadAll(res.Body)
-	assert.NoError(requestCtx.t, err)
+	Is.NoErr(err)
 
 	return responseJson
 }

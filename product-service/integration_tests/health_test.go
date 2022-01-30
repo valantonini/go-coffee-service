@@ -5,12 +5,14 @@ package integration_tests
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"net/http"
 	"testing"
 )
 
 func TestHealth(t *testing.T) {
+	Is := is.New(t)
+
 	req := RequestContext{
 		t:          t,
 		url:        "/health",
@@ -22,6 +24,6 @@ func TestHealth(t *testing.T) {
 	var bd string
 	err := json.Unmarshal(body, &bd)
 
-	assert.NoError(t, err)
-	assert.Equal(t, "\"ok\"", string(body))
+	Is.NoErr(err)
+	Is.Equal(string(body), "\"ok\"")
 }
