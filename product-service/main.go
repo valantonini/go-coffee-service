@@ -9,6 +9,13 @@ import (
 	"net/http"
 )
 
+func setContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("content-type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	cfg := config.NewConfigFromEnv()
 
@@ -29,6 +36,7 @@ func main() {
 	cfg.Logger.Println("registering product service handlers")
 	productService := service.NewCoffeeService(repo, nc, cfg.Logger)
 	r := mux.NewRouter()
+	r.Use(setContentTypeMiddleware)
 	r.HandleFunc("/coffees", productService.List)
 	r.HandleFunc("/coffee/add", productService.Add)
 	r.HandleFunc("/coffee/{id}", productService.Get)

@@ -30,8 +30,6 @@ func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Log
 
 // List retrieves a list of coffees
 func (c *productService) List(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	result := c.repository.GetAll()
 
 	res, err := result.ToJSON()
@@ -51,8 +49,6 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 
 // Add adds a new coffee from the json body
 func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	type addCoffeeRequest struct {
 		Name string `json:"name"`
 	}
@@ -94,8 +90,6 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 
 // Get retrieves a coffee by id
 func (c *productService) Get(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
