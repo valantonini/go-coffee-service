@@ -38,7 +38,11 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	_, err = w.Write(res)
+	if err != nil {
+		c.logger.Println(err)
+	}
+
 }
 
 // Add adds a new coffee from the json body
@@ -63,16 +67,22 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 
 	newItem := c.repository.Add(request.Name)
 
-	response, err := json.Marshal(newItem)
+	res, err := json.Marshal(newItem)
 	if err != nil {
-		c.logger.Printf("error during json marshal of response. Err: %s", err)
+		c.logger.Printf("error during json marshal of res. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
-	c.bus.Publish(events.CoffeeAdded, response)
+	err = c.bus.Publish(events.CoffeeAdded, res)
+	if err != nil {
+		c.logger.Println(err)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+	_, err = w.Write(res)
+	if err != nil {
+		c.logger.Println(err)
+	}
 }
