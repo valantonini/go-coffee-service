@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/matryer/is"
 	"github.com/valantonini/go-coffee-service/product-service/data"
-	"github.com/valantonini/go-coffee-service/product-service/data/entities"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -53,10 +52,11 @@ func TestProductService_Add(t *testing.T) {
 
 		Is.Equal(rr.Code, http.StatusOK)
 
-		var newCoffee entities.Coffee
-		err = json.Unmarshal(rr.Body.Bytes(), &newCoffee)
+		var response map[string]interface{}
+		err = json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
-		Is.Equal(newCoffee.Name, coffee.Name)
+		Is.True(response["id"].(float64) > 0)
+		Is.Equal(response["name"], coffee.Name)
 	})
 
 	t.Run("should return bad request if no name specified", func(t *testing.T) {
@@ -149,10 +149,10 @@ func TestProductService_Get(t *testing.T) {
 
 		Is.Equal(rr.Code, http.StatusOK)
 
-		var response entities.Coffee
+		var response map[string]interface{}
 		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
-		Is.Equal(response.ID, 3)
-		Is.Equal(response.Name, "cappuccino")
+		Is.Equal(response["id"], float64(3))
+		Is.Equal(response["name"], "cappuccino")
 	})
 }

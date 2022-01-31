@@ -8,10 +8,10 @@ import (
 var NotFound = errors.New("not found")
 
 var coffees = entities.Coffees{
-	entities.Coffee{ID: 1, Name: "espresso"},
-	entities.Coffee{ID: 2, Name: "americano"},
-	entities.Coffee{ID: 3, Name: "cappuccino"},
-	entities.Coffee{ID: 4, Name: "flat white"},
+	entities.Coffee{Id: 1, Name: "espresso"},
+	entities.Coffee{Id: 2, Name: "americano"},
+	entities.Coffee{Id: 3, Name: "cappuccino"},
+	entities.Coffee{Id: 4, Name: "flat white"},
 }
 
 // Repository is the command/query interface this repository supports.
@@ -32,7 +32,7 @@ func (r *InMemoryRepository) GetAll() entities.Coffees {
 
 // Add adds a coffee
 func (r *InMemoryRepository) Add(name string) entities.Coffee {
-	coffee := entities.Coffee{ID: len(coffees) + 1, Name: name}
+	coffee := entities.Coffee{Id: len(coffees) + 1, Name: name}
 	coffees = append(coffees, coffee)
 	return coffee
 }
@@ -40,7 +40,7 @@ func (r *InMemoryRepository) Add(name string) entities.Coffee {
 // Get retrieves a coffee by id
 func (r *InMemoryRepository) Get(id int) (entities.Coffee, error) {
 	for _, c := range coffees {
-		if c.ID == id {
+		if c.Id == id {
 			return c, nil
 		}
 	}

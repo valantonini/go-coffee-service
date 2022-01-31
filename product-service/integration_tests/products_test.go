@@ -10,7 +10,6 @@ import (
 	"github.com/matryer/is"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/config"
-	"github.com/valantonini/go-coffee-service/product-service/data/entities"
 	"github.com/valantonini/go-coffee-service/product-service/events"
 	"net/http"
 	"testing"
@@ -33,11 +32,15 @@ func Test_ProductService(t *testing.T) {
 		}
 
 		body := DoRequest(req)
-		bd := entities.Coffees{}
-		err := json.Unmarshal(body, &bd)
+		var coffees []map[string]interface{}
+		err := json.Unmarshal(body, &coffees)
 
 		Is.NoErr(err)
-		Is.True(len(bd) > 0)
+		Is.True(len(coffees) > 0)
+		Is.Equal(coffees[0]["id"], float64(1))
+		Is.Equal(coffees[0]["name"], "espresso")
+		Is.Equal(coffees[1]["id"], float64(2))
+		Is.Equal(coffees[1]["name"], "americano")
 	})
 
 	t.Run("should get coffee by id", func(t *testing.T) {
@@ -49,12 +52,12 @@ func Test_ProductService(t *testing.T) {
 		}
 
 		body := DoRequest(req)
-		bd := entities.Coffee{}
-		err := json.Unmarshal(body, &bd)
+		var coffee map[string]interface{}
+		err := json.Unmarshal(body, &coffee)
 
 		Is.NoErr(err)
-		Is.Equal(bd.ID, 3)
-		Is.Equal(bd.Name, "cappuccino")
+		Is.Equal(coffee["id"], float64(3))
+		Is.Equal(coffee["name"], "cappuccino")
 	})
 
 	t.Run("should add coffee", func(t *testing.T) {
@@ -77,19 +80,19 @@ func Test_ProductService(t *testing.T) {
 
 		body := DoRequest(req)
 
-		addedCoffee := entities.Coffee{}
+		var addedCoffee map[string]interface{}
 		err = json.Unmarshal(body, &addedCoffee)
 
 		Is.NoErr(err)
-		Is.True(addedCoffee.ID > 0)
-		Is.Equal(addedCoffee.Name, newCoffee.Name)
+		Is.True(addedCoffee["id"].(float64) > 0)
+		Is.Equal(addedCoffee["name"], newCoffee.Name)
 
 		select {
 		case res := <-c:
 			err := json.Unmarshal([]byte(res), &addedCoffee)
 			Is.NoErr(err)
-			Is.True(addedCoffee.ID > 0)
-			Is.Equal(addedCoffee.Name, newCoffee.Name)
+			Is.True(addedCoffee["id"].(float64) > 0)
+			Is.Equal(addedCoffee["name"], newCoffee.Name)
 		case <-time.After(5 * time.Second):
 			fmt.Println("event not received")
 			Is.Fail()
