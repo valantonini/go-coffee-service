@@ -6,9 +6,11 @@ services:
       dockerfile: product-service/integration_tests/infrastructure/Dockerfile
     environment:
       - WAIT_FOR=product-service:80
+      - WAIT_FOR_NATS=nats:8222
       - PRODUCT_SERVICE_URL=http://product-service:80
       - NATS_ADDRESS=nats://nats:4222
     networks:
       - coffee-service-network
     depends_on:
       - product-service
+      - nats

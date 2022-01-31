@@ -5,9 +5,10 @@
 set -e
 
 # Wait for the backend to be up, if we know where it is.
-#if [ -n "$CUSTOMERS_HOST" ]; then
-  /app/integration_tests/infrastructure/wait-for-it.sh $WAIT_FOR -t 5
-#fi
+
+/app/integration_tests/infrastructure/wait-for-it.sh $WAIT_FOR -t 5
+/app/integration_tests/infrastructure/wait-for-it.sh $WAIT_FOR_NATS -t 5
+
 
 # Run the main container command.
 exec "$@"

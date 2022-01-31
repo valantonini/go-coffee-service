@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY ./product-service/ ./
 
-RUN chmod +x ./integration_tests/infrastructure/wait-for-it.sh ./integration_tests/infrastructure/docker-entrypoint.sh $PRODUCT_SERVICE_URL
+RUN chmod +x ./integration_tests/infrastructure/wait-for-it.sh ./integration_tests/infrastructure/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/integration_tests/infrastructure/docker-entrypoint.sh"]
 
