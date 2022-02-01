@@ -24,6 +24,7 @@ func main() {
 	if err != nil {
 		cfg.Logger.Fatal(err.Error())
 	}
+	defer nc.Close()
 	cfg.Logger.Println("connected to nats")
 
 	cfg.Logger.Print("initialising repository")
