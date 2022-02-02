@@ -5,6 +5,7 @@ go 1.17
 replace github.com/valantonini/go-coffee-service/config => ../config
 
 require (
+	github.com/matryer/is v1.4.0
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
 	github.com/valantonini/go-coffee-service/config v1.0.0
 )
