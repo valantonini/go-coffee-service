@@ -44,7 +44,6 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		c.logger.Println(err)
 	}
-
 }
 
 // Add adds a new coffee from the json body

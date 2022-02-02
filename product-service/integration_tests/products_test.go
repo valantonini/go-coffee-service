@@ -62,9 +62,11 @@ func Test_ProductService(t *testing.T) {
 
 	t.Run("should add coffee", func(t *testing.T) {
 		c := make(chan string, 1)
-		_, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
+		consumer, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
 			c <- string(m.Data)
 		})
+		Is.NoErr(err)
+		defer consumer.Unsubscribe()
 
 		type addCoffeeRequest struct {
 			Name string `json:"name"`
