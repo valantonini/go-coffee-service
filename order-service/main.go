@@ -6,6 +6,7 @@ import (
 	"github.com/valantonini/go-coffee-service/config"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,10 @@ func main() {
 	}
 	defer nc.Close()
 	cfg.Logger.Println("connected to nats")
+
+	// Subscribe
+	d, _ := nc.Request("get-coffees", nil, 3*time.Second)
+	cfg.Logger.Println(string(d.Data))
 
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte(fmt.Sprintf("%v %v", cfg.BindAddress, cfg.NatsAddress)))

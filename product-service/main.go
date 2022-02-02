@@ -7,6 +7,7 @@ import (
 	"github.com/valantonini/go-coffee-service/product-service/data"
 	"github.com/valantonini/go-coffee-service/product-service/service"
 	"net/http"
+	"time"
 )
 
 func setContentTypeMiddleware(next http.Handler) http.Handler {
@@ -33,6 +34,24 @@ func main() {
 		cfg.Logger.Fatalf("unable to initialise repo")
 	}
 	cfg.Logger.Print("repository initialised")
+
+	go func() {
+		sub, err := nc.SubscribeSync("get-coffees")
+		if err != nil {
+			cfg.Logger.Fatal(err)
+		}
+		defer sub.Unsubscribe()
+
+		for true {
+			msg, err := sub.NextMsg(10 * time.Minute)
+			if err != nil && err != nats.ErrTimeout {
+				cfg.Logger.Fatal(err)
+			}
+			coffees := repo.GetAll()
+			response, _ := coffees.ToJSON()
+			_ = msg.Respond(response)
+		}
+	}()
 
 	cfg.Logger.Println("registering product service handlers")
 	productService := service.NewCoffeeService(repo, nc, cfg.Logger)
