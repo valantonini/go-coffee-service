@@ -67,22 +67,22 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newItem := c.repository.Add(request.Name)
+	newCoffee := c.repository.Add(request.Name)
 
-	res, err := json.Marshal(newItem)
+	newCoffeeJson, err := newCoffee.ToJSON()
 	if err != nil {
-		c.logger.Printf("error during json marshal of res. Err: %s", err)
+		c.logger.Printf("error during json marshal of newCoffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
-	err = c.bus.Publish(events.CoffeeAdded, res)
+	err = c.bus.Publish(events.CoffeeAdded, newCoffeeJson)
 	if err != nil {
 		c.logger.Println(err)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(res)
+	_, err = w.Write(newCoffeeJson)
 	if err != nil {
 		c.logger.Println(err)
 	}
@@ -108,15 +108,15 @@ func (c *productService) Get(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := json.Marshal(coffee)
+	coffeeJson, err := coffee.ToJSON()
 	if err != nil {
-		c.logger.Printf("error during json marshal of res. Err: %s", err)
+		c.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(res)
+	_, err = w.Write(coffeeJson)
 	if err != nil {
 		c.logger.Println(err)
 	}
