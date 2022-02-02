@@ -75,6 +75,7 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	c.logger.Printf("publishing %v event\n%v\n", events.CoffeeAdded, string(newCoffeeJson))
 	err = c.bus.Publish(events.CoffeeAdded, newCoffeeJson)
 	if err != nil {
 		c.logger.Println(err)

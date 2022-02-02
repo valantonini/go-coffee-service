@@ -11,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/config"
 	"github.com/valantonini/go-coffee-service/product-service/events"
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -22,6 +23,21 @@ func Test_ProductService(t *testing.T) {
 
 	nc, err := nats.Connect(cfg.NatsAddress)
 	Is.NoErr(err)
+
+	// register coffee added consumer
+	log.Printf("subscribing to %v\n", events.CoffeeAdded)
+	coffeeAddedEvents := make(chan string, 1)
+	consumer, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
+		coffeeAddedEvents <- string(m.Data)
+	})
+	Is.NoErr(err)
+	defer func(consumer *nats.Subscription) {
+		err := consumer.Unsubscribe()
+		if err != nil {
+			log.Println(err)
+		}
+	}(consumer)
+	log.Printf("subscribed to %v\n", events.CoffeeAdded)
 
 	t.Run("should get all coffees", func(t *testing.T) {
 		req := RequestContext{
@@ -61,13 +77,6 @@ func Test_ProductService(t *testing.T) {
 	})
 
 	t.Run("should add coffee", func(t *testing.T) {
-		c := make(chan string, 1)
-		consumer, err := nc.Subscribe(events.CoffeeAdded, func(m *nats.Msg) {
-			c <- string(m.Data)
-		})
-		Is.NoErr(err)
-		defer consumer.Unsubscribe()
-
 		type addCoffeeRequest struct {
 			Name string `json:"name"`
 		}
@@ -90,13 +99,13 @@ func Test_ProductService(t *testing.T) {
 		Is.Equal(addedCoffee["name"], newCoffee.Name)
 
 		select {
-		case res := <-c:
+		case res := <-coffeeAddedEvents:
 			err := json.Unmarshal([]byte(res), &addedCoffee)
 			Is.NoErr(err)
 			Is.True(addedCoffee["id"].(float64) > 0)
 			Is.Equal(addedCoffee["name"], newCoffee.Name)
 		case <-time.After(5 * time.Second):
-			fmt.Println("event not received")
+			fmt.Printf("%v event not received\n", events.CoffeeAdded)
 			Is.Fail()
 		}
 	})
