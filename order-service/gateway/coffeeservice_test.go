@@ -1,36 +1,40 @@
 package gateway
 
 import (
-	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/matryer/is"
-	"github.com/nats-io/nats.go"
 	"testing"
 	"time"
 )
 
-type bus struct {
+type busMock struct {
 }
 
-func (b bus) Request(subj string, data []byte, timeout time.Duration) (*nats.Msg, error) {
+func (b busMock) Request(subject string, v interface{}, vPtr interface{}, timeout time.Duration) error {
 	var coffees = Coffees{
 		{1, "espresso"},
 		{2, "americano"},
 	}
-	response, _ := json.Marshal(coffees)
 
-	return &nats.Msg{Data: response}, nil
+	out, ok := vPtr.(*Coffees)
+	if !ok {
+		return errors.New(fmt.Sprintf("want vPtr to be %T. got %T", &coffees, vPtr))
+	}
+
+	*out = coffees
+	return nil
 }
 
-func (b bus) Close() {
+func (b busMock) Close() {
 
 }
 
 func Test_CoffeeService(t *testing.T) {
 	Is := is.New(t)
 
-	var b Bus
-	b = new(bus)
-	coffeeService := NewCoffeeServiceGateway(&b)
+	b := new(busMock)
+	coffeeService := NewCoffeeServiceGateway(b)
 	coffees, err := coffeeService.GetAll()
 
 	Is.NoErr(err)

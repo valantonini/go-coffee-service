@@ -1,8 +1,6 @@
 package gateway
 
 import (
-	"encoding/json"
-	"github.com/nats-io/nats.go"
 	"time"
 )
 
@@ -11,7 +9,7 @@ type CoffeeService interface {
 }
 
 type Bus interface {
-	Request(subj string, data []byte, timeout time.Duration) (*nats.Msg, error)
+	Request(subject string, v interface{}, vPtr interface{}, timeout time.Duration) error
 	Close()
 }
 
@@ -27,16 +25,14 @@ type coffeeService struct {
 }
 
 func (c coffeeService) GetAll() (Coffees, error) {
-	response, _ := (*c.bus).Request("get-coffees", nil, 2*time.Second)
 	var coffees Coffees
-	err := json.Unmarshal(response.Data, &coffees)
+	err := (*c.bus).Request("get-coffees", nil, &coffees, 2*time.Second)
 	if err != nil {
 		return nil, err
 	}
-
 	return coffees, nil
 }
 
-func NewCoffeeServiceGateway(b *Bus) CoffeeService {
-	return &coffeeService{b}
+func NewCoffeeServiceGateway(b Bus) CoffeeService {
+	return &coffeeService{&b}
 }

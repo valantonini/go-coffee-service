@@ -13,17 +13,25 @@ func main() {
 	cfg := config.NewConfigFromEnv()
 
 	cfg.Logger.Printf("connecting to nats on %v\n", cfg.NatsAddress)
-	var b gateway.Bus
-	b, err := nats.Connect(cfg.NatsAddress)
+	// var b gateway.Bus
+	nc, err := nats.Connect(cfg.NatsAddress)
 	if err != nil {
-		cfg.Logger.Fatal(err.Error())
+		cfg.Logger.Fatal(err)
 	}
-	defer b.Close()
+	defer nc.Close()
+
+	ec, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+	if err != nil {
+		cfg.Logger.Fatal(err)
+	}
 	cfg.Logger.Println("connected to nats")
 
 	cfg.Logger.Println("retrieving coffee from coffee-service")
-	coffeeService := gateway.NewCoffeeServiceGateway(&b)
-	coffees, _ := coffeeService.GetAll()
+	coffeeService := gateway.NewCoffeeServiceGateway(ec)
+	coffees, err := coffeeService.GetAll()
+	if err != nil {
+		cfg.Logger.Println(err)
+	}
 	cfg.Logger.Printf("%#v\n", coffees)
 
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
