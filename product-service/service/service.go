@@ -11,25 +11,19 @@ import (
 )
 
 // ProductService defines the operations the service supports
-type ProductService interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Add(w http.ResponseWriter, r *http.Request)
-	Get(w http.ResponseWriter, r *http.Request)
-}
-
-type productService struct {
+type ProductService struct {
 	repository data.Repository
 	bus        events.Publisher
 	logger     *log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Logger) ProductService {
-	return &productService{repo, nc, logger}
+func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Logger) *ProductService {
+	return &ProductService{repo, nc, logger}
 }
 
 // List retrieves a list of coffees
-func (c *productService) List(w http.ResponseWriter, r *http.Request) {
+func (c *ProductService) List(w http.ResponseWriter, r *http.Request) {
 	result := c.repository.GetAll()
 
 	res, err := result.ToJSON()
@@ -47,7 +41,7 @@ func (c *productService) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Add adds a new coffee from the json body
-func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
+func (c *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	type addCoffeeRequest struct {
 		Name string `json:"name"`
 	}
@@ -89,7 +83,7 @@ func (c *productService) Add(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get retrieves a coffee by id
-func (c *productService) Get(w http.ResponseWriter, r *http.Request) {
+func (c *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
