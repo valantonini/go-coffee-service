@@ -27,7 +27,7 @@ var client = http.Client{
 	Timeout: time.Second * 5,
 }
 
-func DoRequest(requestCtx RequestContext) []byte {
+func DoRequest(requestCtx RequestContext) (statusCode int, responseJson []byte) {
 	requestCtx.t.Helper()
 
 	Is := is.New(requestCtx.t)
@@ -55,8 +55,8 @@ func DoRequest(requestCtx RequestContext) []byte {
 		defer res.Body.Close()
 	}
 
-	responseJson, err := ioutil.ReadAll(res.Body)
+	responseJson, err = ioutil.ReadAll(res.Body)
 	Is.NoErr(err)
 
-	return responseJson
+	return res.StatusCode, responseJson
 }

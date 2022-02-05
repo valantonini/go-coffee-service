@@ -75,7 +75,7 @@ func (c *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 		c.logger.Println(err)
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(newCoffeeJson)
 	if err != nil {
 		c.logger.Println(err)

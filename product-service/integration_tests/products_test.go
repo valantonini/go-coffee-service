@@ -47,12 +47,12 @@ func Test_ProductService(t *testing.T) {
 			body:       nil,
 		}
 
-		body := DoRequest(req)
+		statusCode, body := DoRequest(req)
 		var coffees []map[string]interface{}
 		err := json.Unmarshal(body, &coffees)
 
 		Is.NoErr(err)
-		Is.True(len(coffees) > 0)
+		Is.Equal(statusCode, http.StatusOK)
 		Is.Equal(coffees[0]["id"], float64(1))
 		Is.Equal(coffees[0]["name"], "espresso")
 		Is.Equal(coffees[1]["id"], float64(2))
@@ -67,11 +67,12 @@ func Test_ProductService(t *testing.T) {
 			body:       nil,
 		}
 
-		body := DoRequest(req)
+		statusCode, body := DoRequest(req)
 		var coffee map[string]interface{}
 		err := json.Unmarshal(body, &coffee)
 
 		Is.NoErr(err)
+		Is.Equal(statusCode, http.StatusOK)
 		Is.Equal(coffee["id"], float64(3))
 		Is.Equal(coffee["name"], "cappuccino")
 	})
@@ -89,12 +90,13 @@ func Test_ProductService(t *testing.T) {
 			body:       newCoffee,
 		}
 
-		body := DoRequest(req)
+		statusCode, body := DoRequest(req)
 
 		var addedCoffee map[string]interface{}
 		err = json.Unmarshal(body, &addedCoffee)
 
 		Is.NoErr(err)
+		Is.Equal(statusCode, http.StatusCreated)
 		Is.True(addedCoffee["id"].(float64) > 0)
 		Is.Equal(addedCoffee["name"], newCoffee.Name)
 

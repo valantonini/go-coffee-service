@@ -20,10 +20,11 @@ func TestHealth(t *testing.T) {
 		body:       nil,
 	}
 
-	body := DoRequest(req)
+	statusCode, body := DoRequest(req)
 	var bd string
 	err := json.Unmarshal(body, &bd)
 
 	Is.NoErr(err)
+	Is.Equal(statusCode, http.StatusOK)
 	Is.Equal(string(body), "\"ok\"")
 }

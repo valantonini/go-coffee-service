@@ -50,7 +50,7 @@ func TestProductService_Add(t *testing.T) {
 		handler := http.HandlerFunc(service.Add)
 		handler.ServeHTTP(rr, req)
 
-		Is.Equal(rr.Code, http.StatusOK)
+		Is.Equal(rr.Code, http.StatusCreated)
 
 		var response map[string]interface{}
 		err = json.Unmarshal(rr.Body.Bytes(), &response)
