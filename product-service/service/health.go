@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// HealthService is a HTTP Handler for health checking
+// HealthService is a HTTP Consumer for health checking
 type HealthService struct {
 	logger *log.Logger
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/valantonini/go-coffee-service/product-service/data"
 	"github.com/valantonini/go-coffee-service/product-service/service"
 	"net/http"
-	"time"
 )
 
 func setContentTypeMiddleware(next http.Handler) http.Handler {
@@ -35,25 +34,12 @@ func main() {
 	}
 	cfg.Logger.Print("repository initialised")
 
-	go func() {
-		sub, err := nc.SubscribeSync("get-coffees")
-		if err != nil {
-			cfg.Logger.Fatal(err)
-		}
-		defer sub.Unsubscribe()
+	cfg.Logger.Println("registering product service consumers")
+	handlerService := service.NewConsumerService(repo, nc, cfg.Logger)
+	handlerService.ConsumeFunc("get-coffees", handlerService.GetCoffees)
+	cfg.Logger.Println("product service consumers registered")
 
-		for true {
-			msg, err := sub.NextMsg(10 * time.Minute)
-			if err != nil && err != nats.ErrTimeout {
-				cfg.Logger.Fatal(err)
-			}
-			coffees := repo.GetAll()
-			response, _ := coffees.ToJSON()
-			_ = msg.Respond(response)
-		}
-	}()
-
-	cfg.Logger.Println("registering product service handlers")
+	cfg.Logger.Println("registering product service http handlers")
 	productService := service.NewCoffeeService(repo, nc, cfg.Logger)
 	r := mux.NewRouter()
 	r.Use(setContentTypeMiddleware)
@@ -62,7 +48,7 @@ func main() {
 	r.HandleFunc("/coffee/{id}", productService.Get)
 	r.Handle("/health", service.NewHealth(cfg.Logger))
 	http.Handle("/", r)
-	cfg.Logger.Println("product services registered")
+	cfg.Logger.Println("product service http handlers registered")
 
 	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)
 	if err := http.ListenAndServe(cfg.BindAddress, nil); err != nil {

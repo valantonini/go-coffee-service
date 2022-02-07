@@ -32,6 +32,8 @@ func main() {
 	if err != nil {
 		cfg.Logger.Println(err)
 	}
+
+	// TODO: debug only until persisting retrieved coffees
 	cfg.Logger.Printf("%#v\n", coffees)
 
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
