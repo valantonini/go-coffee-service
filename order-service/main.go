@@ -1,13 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/config"
 	"github.com/valantonini/go-coffee-service/order-service/gateway"
-	"log"
+	"github.com/valantonini/go-coffee-service/order-service/service"
 	"net/http"
 )
+
+func setContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("content-type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	cfg := config.NewConfigFromEnv()
@@ -32,18 +40,23 @@ func main() {
 	if err != nil {
 		cfg.Logger.Println(err)
 	}
+	cfg.Logger.Printf("%v coffees retrieved", len(coffees))
 
-	// TODO: debug only until persisting retrieved coffees
-	cfg.Logger.Printf("%#v\n", coffees)
-
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		_, err := writer.Write([]byte(fmt.Sprintf("%#v\n", coffees)))
+	cfg.Logger.Println("registering order service http handlers")
+	r := mux.NewRouter()
+	r.Use(setContentTypeMiddleware)
+	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		err := json.NewEncoder(writer).Encode(coffees)
 		if err != nil {
 			cfg.Logger.Println(err)
 		}
 	})
+	r.Handle("/health", service.NewHealth(cfg.Logger))
+	http.Handle("/", r)
+	cfg.Logger.Println("order service http handlers registered")
 
-	if err := http.ListenAndServe(":80", nil); err != nil {
-		log.Fatal(err)
+	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)
+	if err := http.ListenAndServe(cfg.BindAddress, nil); err != nil {
+		cfg.Logger.Fatal(err)
 	}
 }
