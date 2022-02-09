@@ -36,7 +36,7 @@ func main() {
 
 	cfg.Logger.Println("registering product service consumers")
 	handlerService := service.NewConsumerService(repo, nc, cfg.Logger)
-	handlerService.ConsumeFunc("get-coffees", handlerService.GetCoffees)
+	handlerService.RegisterConsumer("get-coffees", handlerService.GetCoffees)
 	cfg.Logger.Println("product service consumers registered")
 
 	cfg.Logger.Println("registering product service http handlers")

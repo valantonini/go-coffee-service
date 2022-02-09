@@ -28,7 +28,7 @@ func NewConsumerService(repo data.Repository, nc Subscriber, logger *log.Logger)
 	return &ConsumerService{repo, nc, logger}
 }
 
-func (c ConsumerService) ConsumeFunc(topic string, consumer Consumer) {
+func (c ConsumerService) RegisterConsumer(topic string, consumer Consumer) {
 	go func() {
 		sub, err := c.bus.SubscribeSync(topic)
 		if err != nil {
