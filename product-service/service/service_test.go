@@ -28,12 +28,13 @@ func (m *mockPublisher) Publish(topic string, msg []byte) error {
 
 func TestProductService_Add(t *testing.T) {
 	Is := is.New(t)
+	repository, _ := data.InitInMemoryRepository()
+	publisher := mockPublisher{}
+	router := mux.NewRouter()
+	service := NewCoffeeService(repository, &publisher, log.Default())
+	service.RegisterRoutes(router)
 
 	t.Run("should return new coffee", func(t *testing.T) {
-		repository, _ := data.InitInMemoryRepository()
-		publisher := mockPublisher{}
-		service := NewCoffeeService(repository, &publisher, log.Default())
-
 		coffee := struct {
 			Name string `json:"name"`
 		}{
@@ -41,29 +42,23 @@ func TestProductService_Add(t *testing.T) {
 		}
 
 		b := new(bytes.Buffer)
-		err := json.NewEncoder(b).Encode(coffee)
-		Is.NoErr(err)
-
-		req, _ := http.NewRequest("GET", "/coffee/add", b)
+		_ = json.NewEncoder(b).Encode(coffee)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(service.Add)
-		handler.ServeHTTP(rr, req)
+		req, _ := http.NewRequest("POST", "/coffee/add", b)
+
+		router.ServeHTTP(rr, req)
 
 		Is.Equal(rr.Code, http.StatusCreated)
 
 		var response map[string]interface{}
-		err = json.Unmarshal(rr.Body.Bytes(), &response)
+		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
 		Is.True(response["id"].(float64) > 0)
 		Is.Equal(response["name"], coffee.Name)
 	})
 
 	t.Run("should return bad request if no name specified", func(t *testing.T) {
-		repository, _ := data.InitInMemoryRepository()
-		publisher := mockPublisher{}
-		service := NewCoffeeService(repository, &publisher, log.Default())
-
 		coffee := struct {
 			Name string `json:"name"`
 		}{
@@ -71,38 +66,25 @@ func TestProductService_Add(t *testing.T) {
 		}
 
 		b := new(bytes.Buffer)
-		err := json.NewEncoder(b).Encode(coffee)
-		Is.NoErr(err)
+		_ = json.NewEncoder(b).Encode(coffee)
 
-		req, _ := http.NewRequest("GET", "/coffee/add", b)
-
+		req, _ := http.NewRequest("POST", "/coffee/add", b)
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(service.Add)
-		handler.ServeHTTP(rr, req)
+
+		router.ServeHTTP(rr, req)
 
 		Is.Equal(rr.Code, http.StatusBadRequest)
 
 		var response string
-		err = json.Unmarshal(rr.Body.Bytes(), &response)
+		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
 		Is.Equal(response, "bad request")
 	})
-}
-
-func TestProductService_Get(t *testing.T) {
-	Is := is.New(t)
 
 	t.Run("should return 400 if bad id supplied", func(t *testing.T) {
-		repository, _ := data.InitInMemoryRepository()
-		publisher := mockPublisher{}
-		service := NewCoffeeService(repository, &publisher, log.Default())
-
+		rr := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/coffee/abc", nil)
 
-		rr := httptest.NewRecorder()
-
-		router := mux.NewRouter()
-		router.HandleFunc("/coffee/{id}", service.Get)
 		router.ServeHTTP(rr, req)
 
 		Is.Equal(rr.Code, http.StatusBadRequest)
@@ -114,16 +96,9 @@ func TestProductService_Get(t *testing.T) {
 	})
 
 	t.Run("should return 404 if coffee not found", func(t *testing.T) {
-		repository, _ := data.InitInMemoryRepository()
-		publisher := mockPublisher{}
-		service := NewCoffeeService(repository, &publisher, log.Default())
-
+		rr := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/coffee/333", nil)
 
-		rr := httptest.NewRecorder()
-
-		router := mux.NewRouter()
-		router.HandleFunc("/coffee/{id}", service.Get)
 		router.ServeHTTP(rr, req)
 
 		Is.Equal(rr.Code, http.StatusNotFound)
@@ -135,16 +110,9 @@ func TestProductService_Get(t *testing.T) {
 	})
 
 	t.Run("should return coffee if present", func(t *testing.T) {
-		repository, _ := data.InitInMemoryRepository()
-		publisher := mockPublisher{}
-		service := NewCoffeeService(repository, &publisher, log.Default())
-
+		rr := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/coffee/3", nil)
 
-		rr := httptest.NewRecorder()
-
-		router := mux.NewRouter()
-		router.HandleFunc("/coffee/{id}", service.Get)
 		router.ServeHTTP(rr, req)
 
 		Is.Equal(rr.Code, http.StatusOK)

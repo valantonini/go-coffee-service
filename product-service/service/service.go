@@ -22,13 +22,19 @@ func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Log
 	return &ProductService{repo, nc, logger}
 }
 
+func (p *ProductService) RegisterRoutes(r *mux.Router) {
+	r.HandleFunc("/coffees", p.List).Methods(http.MethodGet)
+	r.HandleFunc("/coffee/add", p.Add).Methods(http.MethodPost)
+	r.HandleFunc("/coffee/{id}", p.Get).Methods(http.MethodGet)
+}
+
 // List retrieves a list of coffees
-func (c *ProductService) List(w http.ResponseWriter, r *http.Request) {
-	result := c.repository.GetAll()
+func (p *ProductService) List(w http.ResponseWriter, r *http.Request) {
+	result := p.repository.GetAll()
 
 	res, err := result.ToJSON()
 	if err != nil {
-		c.logger.Printf("Error during JSON marshal. Err: %s", err)
+		p.logger.Printf("Error during JSON marshal. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
@@ -36,12 +42,12 @@ func (c *ProductService) List(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
 	if err != nil {
-		c.logger.Println(err)
+		p.logger.Println(err)
 	}
 }
 
 // Add adds a new coffee from the json body
-func (c *ProductService) Add(w http.ResponseWriter, r *http.Request) {
+func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	type addCoffeeRequest struct {
 		Name string `json:"name"`
 	}
@@ -50,7 +56,7 @@ func (c *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&request)
 	if err != nil {
-		c.logger.Printf("error during json marshal of request. Err: %s", err)
+		p.logger.Printf("error during json marshal of request. Err: %s", err)
 		http.Error(w, "\"bad request\"", http.StatusBadRequest)
 		return
 	}
@@ -60,30 +66,30 @@ func (c *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCoffee := c.repository.Add(request.Name)
+	newCoffee := p.repository.Add(request.Name)
 
 	newCoffeeJson, err := newCoffee.ToJSON()
 	if err != nil {
-		c.logger.Printf("error during json marshal of newCoffeeJson. Err: %s", err)
+		p.logger.Printf("error during json marshal of newCoffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
-	c.logger.Printf("publishing %v event\n%v\n", events.CoffeeAdded, string(newCoffeeJson))
-	err = c.bus.Publish(events.CoffeeAdded, newCoffeeJson)
+	p.logger.Printf("publishing %v event\n%v\n", events.CoffeeAdded, string(newCoffeeJson))
+	err = p.bus.Publish(events.CoffeeAdded, newCoffeeJson)
 	if err != nil {
-		c.logger.Println(err)
+		p.logger.Println(err)
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(newCoffeeJson)
 	if err != nil {
-		c.logger.Println(err)
+		p.logger.Println(err)
 	}
 }
 
 // Get retrieves a coffee by id
-func (c *ProductService) Get(w http.ResponseWriter, r *http.Request) {
+func (p *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -91,7 +97,7 @@ func (c *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	coffee, err := c.repository.Get(id)
+	coffee, err := p.repository.Get(id)
 	if err != nil {
 		switch err {
 		case data.NotFound:
@@ -104,7 +110,7 @@ func (c *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 
 	coffeeJson, err := coffee.ToJSON()
 	if err != nil {
-		c.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
+		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
@@ -112,6 +118,6 @@ func (c *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(coffeeJson)
 	if err != nil {
-		c.logger.Println(err)
+		p.logger.Println(err)
 	}
 }
