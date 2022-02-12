@@ -4,7 +4,7 @@
 
 Playing with patterns and libraries for distributed systems in the Go ecosystem.
 
-Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices)
+Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices) and [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
 
 ## caveats
 

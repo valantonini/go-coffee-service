@@ -3,7 +3,7 @@ services:
   product-service:
     build:
       context: .
-      dockerfile: product-service/Dockerfile
+      dockerfile: cmd/product-service/Dockerfile
     environment:
       - BIND_ADDRESS=:80
       - NATS_ADDRESS=nats://nats:4222
@@ -16,7 +16,7 @@ services:
   order-service:
     build:
       context: .
-      dockerfile: order-service/Dockerfile
+      dockerfile: cmd/order-service/Dockerfile
     environment:
       - BIND_ADDRESS=:80
       - NATS_ADDRESS=nats://nats:4222

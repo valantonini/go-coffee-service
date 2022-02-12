@@ -3,7 +3,7 @@ services:
   product-service-integration-test:
     build:
       context: .
-      dockerfile: product-service/integration_tests/infrastructure/Dockerfile
+      dockerfile: test/product_service_tests/Dockerfile
     environment:
       - WAIT_FOR=product-service:80
       - WAIT_FOR_NATS=nats:8222

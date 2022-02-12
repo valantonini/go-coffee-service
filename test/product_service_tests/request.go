@@ -1,4 +1,4 @@
-package integration_tests
+package product_service_tests
 
 import (
 	"bytes"

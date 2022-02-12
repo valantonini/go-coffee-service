@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/matryer/is"
-	"github.com/valantonini/go-coffee-service/product-service/data"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"log"
 	"net/http"
 	"net/http/httptest"

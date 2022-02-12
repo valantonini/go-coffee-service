@@ -2,7 +2,7 @@ package data
 
 import (
 	"errors"
-	"github.com/valantonini/go-coffee-service/product-service/data/entities"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/data/entities"
 )
 
 var NotFound = errors.New("not found")

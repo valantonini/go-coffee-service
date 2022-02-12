@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package integration_tests
+package product_service_tests
 
 import (
 	"encoding/json"
