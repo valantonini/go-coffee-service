@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
+	"github.com/valantonini/go-coffee-service/cmd/order-service/gateway"
+	"github.com/valantonini/go-coffee-service/cmd/order-service/service"
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
-	"github.com/valantonini/go-coffee-service/order-service/gateway"
-	"github.com/valantonini/go-coffee-service/order-service/service"
 	"net/http"
 )
 

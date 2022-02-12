@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/nats-io/nats.go"
-	"github.com/valantonini/go-coffee-service/product-service/data"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"log"
 	"time"
 )

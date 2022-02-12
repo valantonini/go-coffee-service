@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/matryer/is"
 	"github.com/nats-io/nats.go"
-	"github.com/valantonini/go-coffee-service/product-service/data"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"log"
 	"testing"
 )

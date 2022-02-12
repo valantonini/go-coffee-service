@@ -2,15 +2,11 @@ module github.com/valantonini/go-coffee-service
 
 go 1.17
 
-replace github.com/valantonini/go-coffee-service/config => ./internal/pkg/config
-
 require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/matryer/is v1.4.0
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
-	github.com/valantonini/go-coffee-service/order-service v0.0.0-20220210203804-f78582ef3d77
-	github.com/valantonini/go-coffee-service/product-service v0.0.0-20220210203804-f78582ef3d77
 )
 
 require (
