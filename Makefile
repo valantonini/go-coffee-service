@@ -1,5 +1,8 @@
 MODULE_DIRS =  ./cmd/product-service ./cmd/order-service ./config
 
+restore:
+	go mod download
+
 test:
 	go test -v ./...
 
