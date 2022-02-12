@@ -6,6 +6,7 @@ import (
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/service"
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
+	"github.com/valantonini/go-coffee-service/internal/pkg/health"
 	"net/http"
 )
 
@@ -44,7 +45,7 @@ func main() {
 	r.Use(setContentTypeMiddleware)
 	productService := service.NewCoffeeService(repo, nc, cfg.Logger)
 	productService.RegisterRoutes(r)
-	r.Handle("/health", service.NewHealth(cfg.Logger)).Methods(http.MethodGet)
+	r.Handle("/health", health.NewHealthService(cfg.Logger)).Methods(http.MethodGet)
 	http.Handle("/", r)
 	cfg.Logger.Println("product service http handlers registered")
 

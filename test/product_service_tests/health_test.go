@@ -26,5 +26,5 @@ func TestHealth(t *testing.T) {
 
 	Is.NoErr(err)
 	Is.Equal(statusCode, http.StatusOK)
-	Is.Equal(string(body), "\"ok\"")
+	Is.Equal(string(body), "\"ok\"\n")
 }

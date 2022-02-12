@@ -1,7 +1,7 @@
-package service
+package health
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 )
@@ -11,13 +11,17 @@ type HealthService struct {
 	logger *log.Logger
 }
 
-// NewHealth creates a new Health handler
-func NewHealth(l *log.Logger) *HealthService {
+// NewHealthService creates a new Health handler
+func NewHealthService(l *log.Logger) *HealthService {
 	return &HealthService{l}
 }
 
 // ServeHTTP implements the handler interface
 func (h *HealthService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s", "\"ok\"")
+
+	err := json.NewEncoder(w).Encode("ok")
+	if err != nil {
+		h.logger.Println(err)
+	}
 }

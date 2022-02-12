@@ -5,8 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/cmd/order-service/gateway"
-	"github.com/valantonini/go-coffee-service/cmd/order-service/service"
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
+	"github.com/valantonini/go-coffee-service/internal/pkg/health"
 	"net/http"
 )
 
@@ -51,7 +51,7 @@ func main() {
 			cfg.Logger.Println(err)
 		}
 	})
-	r.Handle("/health", service.NewHealth(cfg.Logger))
+	r.Handle("/health", health.NewHealthService(cfg.Logger)).Methods(http.MethodGet)
 	http.Handle("/", r)
 	cfg.Logger.Println("order service http handlers registered")
 
