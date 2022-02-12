@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/matryer/is"
 	"github.com/nats-io/nats.go"
-	"github.com/valantonini/go-coffee-service/config"
+	"github.com/valantonini/go-coffee-service/internal/pkg/config"
 	"github.com/valantonini/go-coffee-service/product-service/events"
 	"log"
 	"net/http"

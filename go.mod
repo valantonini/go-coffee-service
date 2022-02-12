@@ -2,7 +2,7 @@ module github.com/valantonini/go-coffee-service
 
 go 1.17
 
-replace github.com/valantonini/go-coffee-service/config => ./config
+replace github.com/valantonini/go-coffee-service/config => ./internal/pkg/config
 
 require (
 	github.com/google/uuid v1.3.0
