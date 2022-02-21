@@ -13,8 +13,8 @@ type busMock struct {
 
 func (b busMock) Request(subject string, v interface{}, vPtr interface{}, timeout time.Duration) error {
 	var coffees = Coffees{
-		{1, "espresso"},
-		{2, "americano"},
+		{"1", "espresso"},
+		{"2", "americano"},
 	}
 
 	out, ok := vPtr.(*Coffees)

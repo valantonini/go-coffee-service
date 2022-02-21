@@ -14,7 +14,7 @@ func (c *Coffees) ToJSON() ([]byte, error) {
 
 // Coffee defines a coffee in the database
 type Coffee struct {
-	Id   int    `json:"id"`
+	Id   string `json:"id" bson:"_id"`
 	Name string `json:"name"`
 }
 

@@ -58,5 +58,7 @@ func DoRequest(requestCtx RequestContext) (statusCode int, responseJson []byte) 
 	responseJson, err = ioutil.ReadAll(res.Body)
 	Is.NoErr(err)
 
+	fmt.Printf("response json: %s\n", responseJson)
+
 	return res.StatusCode, responseJson
 }

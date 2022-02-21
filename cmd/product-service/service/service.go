@@ -7,7 +7,6 @@ import (
 	"github.com/valantonini/go-coffee-service/cmd/product-service/events"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 // ProductService defines the operations the service supports
@@ -91,8 +90,8 @@ func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 // Get retrieves a coffee by id
 func (p *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+	id, ok := vars["id"]
+	if !ok {
 		http.Error(w, "\"bad request\"", http.StatusBadRequest)
 		return
 	}
@@ -108,16 +107,11 @@ func (p *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	coffeeJson, err := coffee.ToJSON()
-	if err != nil {
-		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
-		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(coffeeJson)
+	err = json.NewEncoder(w).Encode(coffee)
+
 	if err != nil {
-		p.logger.Println(err)
+		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", ok)
+		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 	}
 }

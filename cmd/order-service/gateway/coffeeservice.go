@@ -16,7 +16,7 @@ type Bus interface {
 type Coffees []Coffee
 
 type Coffee struct {
-	Id   int    `json:"id"`
+	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 

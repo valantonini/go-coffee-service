@@ -13,9 +13,15 @@ import (
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
 	"log"
 	"net/http"
+	"sort"
 	"testing"
 	"time"
 )
+
+type coffee struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
 
 func Test_ProductService(t *testing.T) {
 	Is := is.New(t)
@@ -48,21 +54,28 @@ func Test_ProductService(t *testing.T) {
 		}
 
 		statusCode, body := DoRequest(req)
-		var coffees []map[string]interface{}
+		var coffees []coffee
 		err := json.Unmarshal(body, &coffees)
 
 		Is.NoErr(err)
 		Is.Equal(statusCode, http.StatusOK)
-		Is.Equal(coffees[0]["id"], float64(1))
-		Is.Equal(coffees[0]["name"], "espresso")
-		Is.Equal(coffees[1]["id"], float64(2))
-		Is.Equal(coffees[1]["name"], "americano")
+
+		coffeeNames := sort.StringSlice{}
+		for _, c := range coffees {
+			coffeeNames = append(coffeeNames, c.Name)
+		}
+		coffeeNames.Sort()
+
+		expected := []string{"americano", "cappuccino", "espresso", "flat white"}
+		for i, got := range coffeeNames {
+			Is.Equal(expected[i], got)
+		}
 	})
 
 	t.Run("should get coffee by id", func(t *testing.T) {
 		req := RequestContext{
 			t:          t,
-			url:        "/coffee/3",
+			url:        "/coffee/62193d3c247efc58358593fc",
 			httpMethod: http.MethodGet,
 			body:       nil,
 		}
@@ -73,7 +86,7 @@ func Test_ProductService(t *testing.T) {
 
 		Is.NoErr(err)
 		Is.Equal(statusCode, http.StatusOK)
-		Is.Equal(coffee["id"], float64(3))
+		Is.True(coffee["id"] != "")
 		Is.Equal(coffee["name"], "cappuccino")
 	})
 
@@ -97,14 +110,14 @@ func Test_ProductService(t *testing.T) {
 
 		Is.NoErr(err)
 		Is.Equal(statusCode, http.StatusCreated)
-		Is.True(addedCoffee["id"].(float64) > 0)
+		Is.True(addedCoffee["id"] != "")
 		Is.Equal(addedCoffee["name"], newCoffee.Name)
 
 		select {
 		case res := <-coffeeAddedEvents:
 			err := json.Unmarshal([]byte(res), &addedCoffee)
 			Is.NoErr(err)
-			Is.True(addedCoffee["id"].(float64) > 0)
+			Is.True(addedCoffee["id"] != "")
 			Is.Equal(addedCoffee["name"], newCoffee.Name)
 		case <-time.After(5 * time.Second):
 			fmt.Printf("%v event not received\n", events.CoffeeAdded)
