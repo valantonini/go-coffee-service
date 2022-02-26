@@ -38,9 +38,9 @@ func Test_Consumers(t *testing.T) {
 		var coffees []map[string]interface{}
 		err := json.Unmarshal(msg.response, &coffees)
 		Is.NoErr(err)
-		Is.Equal(coffees[0]["id"], float64(1))
+		Is.Equal(coffees[0]["id"], "1")
 		Is.Equal(coffees[0]["name"], "espresso")
-		Is.Equal(coffees[1]["id"], float64(2))
+		Is.Equal(coffees[1]["id"], "2")
 		Is.Equal(coffees[1]["name"], "americano")
 	})
 }

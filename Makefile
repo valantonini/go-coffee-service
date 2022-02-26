@@ -1,5 +1,3 @@
-MODULE_DIRS =  ./cmd/product-service ./cmd/order-service ./config
-
 restore:
 	go mod download
 

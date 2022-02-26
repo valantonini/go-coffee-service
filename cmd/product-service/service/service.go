@@ -111,7 +111,7 @@ func (p *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(coffee)
 
 	if err != nil {
-		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", ok)
+		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 	}
 }

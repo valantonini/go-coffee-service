@@ -54,7 +54,7 @@ func TestProductService_Add(t *testing.T) {
 		var response map[string]interface{}
 		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
-		Is.True(response["id"].(float64) > 0)
+		Is.True(response["id"] != "")
 		Is.Equal(response["name"], coffee.Name)
 	})
 
@@ -70,20 +70,6 @@ func TestProductService_Add(t *testing.T) {
 
 		req, _ := http.NewRequest("POST", "/coffee/add", b)
 		rr := httptest.NewRecorder()
-
-		router.ServeHTTP(rr, req)
-
-		Is.Equal(rr.Code, http.StatusBadRequest)
-
-		var response string
-		err := json.Unmarshal(rr.Body.Bytes(), &response)
-		Is.NoErr(err)
-		Is.Equal(response, "bad request")
-	})
-
-	t.Run("should return 400 if bad id supplied", func(t *testing.T) {
-		rr := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/coffee/abc", nil)
 
 		router.ServeHTTP(rr, req)
 
@@ -120,7 +106,7 @@ func TestProductService_Add(t *testing.T) {
 		var response map[string]interface{}
 		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		Is.NoErr(err)
-		Is.Equal(response["id"], float64(3))
+		Is.Equal(response["id"], "3")
 		Is.Equal(response["name"], "cappuccino")
 	})
 }
