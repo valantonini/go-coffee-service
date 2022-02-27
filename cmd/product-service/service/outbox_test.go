@@ -10,8 +10,9 @@ func Test_Outbox(t *testing.T) {
 	Is := is.New(t)
 
 	t.Run("should add entry to outbox", func(t *testing.T) {
-		var mockPublisher mockPublisher
-		outbox := NewOutbox(&mockPublisher)
+		p := &mockPublisher{}
+		db := NewInMemoryOutbox()
+		outbox := NewOutbox(&db, p)
 
 		data := struct {
 			foo string
@@ -23,8 +24,10 @@ func Test_Outbox(t *testing.T) {
 
 		msg, _ := json.Marshal(data)
 
-		outbox.Send("sample-message", msg)
+		id, _ := outbox.Send("sample-message", msg)
 
-		Is.Equal(mockPublisher.messages[0].topic, "sample-message")
+		Is.Equal(p.messages[0].topic, "sample-message")
+		Is.Equal((*db.entries)[id].id, id)
+		Is.Equal((*db.entries)[id].sent, true)
 	})
 }
