@@ -12,20 +12,6 @@ import (
 	"testing"
 )
 
-type message struct {
-	topic string
-	msg   []byte
-}
-
-type mockPublisher struct {
-	messages []message
-}
-
-func (m *mockPublisher) Publish(topic string, msg []byte) error {
-	m.messages = append(m.messages, message{topic, msg})
-	return nil
-}
-
 func TestProductService_Add(t *testing.T) {
 	Is := is.New(t)
 	repository, _ := data.InitInMemoryRepository()
