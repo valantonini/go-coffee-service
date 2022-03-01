@@ -46,11 +46,10 @@ func NewOutbox(db *InMemoryOutboxDb, p events.Publisher) Outbox {
 func (o *Outbox) Send(topic string, message []byte) (string, error) {
 	msgId, err := (*o.db).Save(topic, message)
 	(*o.publisher).Publish(topic, message)
-	// (*o.db).MarkSent(msgId)
 	return msgId, err
 }
 
-func (o *Outbox) StartBackroundPolling(interval time.Duration) chan bool {
+func (o *Outbox) StartBackgroundPolling(interval time.Duration) chan bool {
 	done := make(chan bool)
 
 	go func() {

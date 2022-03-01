@@ -35,7 +35,7 @@ func Test_Outbox(t *testing.T) {
 		p := &mockPublisher{}
 		db := NewInMemoryOutbox()
 		outbox := NewOutbox(&db, p)
-		cancelBackgroundPolling := outbox.StartBackroundPolling(10 * time.Millisecond)
+		cancelBackgroundPolling := outbox.StartBackgroundPolling(10 * time.Millisecond)
 
 		data := struct {
 			foo string
