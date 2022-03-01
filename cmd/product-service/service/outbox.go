@@ -21,7 +21,7 @@ func (o *Outbox) Send(topic string, message []byte) (string, error) {
 	return msgId, err
 }
 
-func (o *Outbox) StartBackgroundPolling(interval time.Duration) chan bool {
+func (o *Outbox) StartBackgroundPolling(interval time.Duration) (cancel func()) {
 	done := make(chan bool)
 
 	go func() {
@@ -40,5 +40,7 @@ func (o *Outbox) StartBackgroundPolling(interval time.Duration) chan bool {
 		}
 	}()
 
-	return done
+	return func() {
+		done <- true
+	}
 }

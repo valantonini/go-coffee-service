@@ -36,7 +36,8 @@ func Test_Outbox(t *testing.T) {
 		p := &mockPublisher{}
 		db := data.NewInMemoryOutbox()
 		outbox := NewOutbox(&db, p)
-		cancelBackgroundPolling := outbox.StartBackgroundPolling(10 * time.Millisecond)
+		cancel := outbox.StartBackgroundPolling(10 * time.Millisecond)
+		defer cancel()
 
 		msgData := struct {
 			foo string
@@ -52,6 +53,5 @@ func Test_Outbox(t *testing.T) {
 
 		time.Sleep(13 * time.Millisecond)
 		Is.Equal((*db.Entries)[id].Sent, true)
-		cancelBackgroundPolling <- true
 	})
 }
