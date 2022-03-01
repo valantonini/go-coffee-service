@@ -11,13 +11,13 @@ import (
 
 // ProductService defines the operations the service supports
 type ProductService struct {
-	repository data.Repository
+	repository data.CoffeeRepository
 	bus        events.Publisher
 	logger     *log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(repo data.Repository, nc events.Publisher, logger *log.Logger) *ProductService {
+func NewCoffeeService(repo data.CoffeeRepository, nc events.Publisher, logger *log.Logger) *ProductService {
 	return &ProductService{repo, nc, logger}
 }
 

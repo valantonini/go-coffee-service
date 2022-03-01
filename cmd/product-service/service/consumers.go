@@ -17,14 +17,14 @@ type Subscriber interface {
 }
 
 type ConsumerService struct {
-	repository data.Repository
+	repository data.CoffeeRepository
 	bus        Subscriber
 	logger     *log.Logger
 }
 
 type Consumer func(msg Message)
 
-func NewConsumerService(repo data.Repository, nc Subscriber, logger *log.Logger) *ConsumerService {
+func NewConsumerService(repo data.CoffeeRepository, nc Subscriber, logger *log.Logger) *ConsumerService {
 	return &ConsumerService{repo, nc, logger}
 }
 

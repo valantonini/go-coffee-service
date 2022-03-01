@@ -14,8 +14,8 @@ import (
 
 var NotFound = errors.New("not found")
 
-// Repository is the command/query interface this repository supports.
-type Repository interface {
+// CoffeeRepository is the command/query interface this repository supports.
+type CoffeeRepository interface {
 	Get(id string) (entities.Coffee, error)
 	GetAll() entities.Coffees
 	Add(name string) entities.Coffee
@@ -70,7 +70,7 @@ func (r MongoRepository) Add(name string) entities.Coffee {
 	return c
 }
 
-func InitMongoRepository() (Repository, error) {
+func InitMongoRepository() (CoffeeRepository, error) {
 	const uri = "mongodb://root:venti@product-service-db:27017/?maxPoolSize=20&w=majority"
 	// Create a new client and connect to the server
 
