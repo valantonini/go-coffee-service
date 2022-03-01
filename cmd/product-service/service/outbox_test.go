@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"github.com/matryer/is"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"testing"
 	"time"
 )
@@ -12,9 +13,9 @@ func Test_Outbox(t *testing.T) {
 
 	t.Run("should add entry to outbox", func(t *testing.T) {
 		p := &mockPublisher{}
-		db := NewInMemoryOutbox()
+		db := data.NewInMemoryOutbox()
 		outbox := NewOutbox(&db, p)
-		data := struct {
+		msgData := struct {
 			foo string
 			baz int
 		}{
@@ -22,22 +23,22 @@ func Test_Outbox(t *testing.T) {
 			7,
 		}
 
-		msg, _ := json.Marshal(data)
+		msg, _ := json.Marshal(msgData)
 
 		id, _ := outbox.Send("sample-message", msg)
 
 		Is.Equal(p.messages[0].topic, "sample-message")
-		Is.Equal((*db.entries)[id].id, id)
-		Is.Equal((*db.entries)[id].sent, false)
+		Is.Equal((*db.Entries)[id].Id, id)
+		Is.Equal((*db.Entries)[id].Sent, false)
 	})
 
 	t.Run("background polling should send unsent entries in outbox", func(t *testing.T) {
 		p := &mockPublisher{}
-		db := NewInMemoryOutbox()
+		db := data.NewInMemoryOutbox()
 		outbox := NewOutbox(&db, p)
 		cancelBackgroundPolling := outbox.StartBackgroundPolling(10 * time.Millisecond)
 
-		data := struct {
+		msgData := struct {
 			foo string
 			baz int
 		}{
@@ -45,12 +46,12 @@ func Test_Outbox(t *testing.T) {
 			7,
 		}
 
-		msg, _ := json.Marshal(data)
+		msg, _ := json.Marshal(msgData)
 
 		id, _ := outbox.Send("sample-message", msg)
 
 		time.Sleep(13 * time.Millisecond)
-		Is.Equal((*db.entries)[id].sent, true)
+		Is.Equal((*db.Entries)[id].Sent, true)
 		cancelBackgroundPolling <- true
 	})
 }
