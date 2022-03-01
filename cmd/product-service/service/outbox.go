@@ -7,11 +7,11 @@ import (
 )
 
 type Outbox struct {
-	db        *data.InMemoryOutboxDb
+	db        *data.InMemoryOutboxRepository
 	publisher *events.Publisher
 }
 
-func NewOutbox(db *data.InMemoryOutboxDb, p events.Publisher) Outbox {
+func NewOutbox(db *data.InMemoryOutboxRepository, p events.Publisher) Outbox {
 	return Outbox{db, &p}
 }
 
