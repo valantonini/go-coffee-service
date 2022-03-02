@@ -14,6 +14,8 @@ import (
 
 var NotFound = errors.New("not found")
 
+var coffeeCollection = "Coffees"
+
 // CoffeeRepository is the command/query interface this repository supports.
 type CoffeeRepository interface {
 	Get(id string) (entities.Coffee, error)
@@ -21,17 +23,17 @@ type CoffeeRepository interface {
 	Add(name string) entities.Coffee
 }
 
-type MongoRepository struct {
-	db *mongo.Collection
+type MongoCoffeeRepository struct {
+	db *mongo.Database
 }
 
-func (r MongoRepository) Get(id string) (entities.Coffee, error) {
+func (m MongoCoffeeRepository) Get(id string) (entities.Coffee, error) {
 	hexId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return entities.Coffee{}, err
 	}
 
-	result := r.db.FindOne(context.TODO(), bson.M{"_id": hexId})
+	result := m.db.Collection(coffeeCollection).FindOne(context.TODO(), bson.M{"_id": hexId})
 	var coffee entities.Coffee
 	err = result.Decode(&coffee)
 	if err != nil {
@@ -41,9 +43,9 @@ func (r MongoRepository) Get(id string) (entities.Coffee, error) {
 	return coffee, nil
 }
 
-func (r MongoRepository) GetAll() entities.Coffees {
+func (m MongoCoffeeRepository) GetAll() entities.Coffees {
 
-	result, err := r.db.Find(context.TODO(), bson.D{})
+	result, err := m.db.Collection(coffeeCollection).Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println(err)
 		return entities.Coffees{}
@@ -57,16 +59,16 @@ func (r MongoRepository) GetAll() entities.Coffees {
 	return coffees
 }
 
-func (r MongoRepository) Add(name string) entities.Coffee {
+func (m MongoCoffeeRepository) Add(name string) entities.Coffee {
 	doc := bson.D{{"name", name}}
-	result, err := r.db.InsertOne(context.TODO(), doc)
+	result, err := m.db.Collection(coffeeCollection).InsertOne(context.TODO(), doc)
 	if err != nil {
 		fmt.Println(err)
 		return entities.Coffee{}
 	}
 	fmt.Printf("Inserted document with _id: %v\n", result.InsertedID)
 	insertedId := result.InsertedID.(primitive.ObjectID).Hex()
-	c, _ := r.Get(insertedId)
+	c, _ := m.Get(insertedId)
 	return c
 }
 
@@ -84,7 +86,8 @@ func InitMongoRepository() (CoffeeRepository, error) {
 		panic(err)
 	}
 
-	coll := client.Database("products").Collection("coffees")
+	db := client.Database("products")
+	coll := db.Collection(coffeeCollection)
 
 	fmt.Println("Successfully connected and pinged.")
 
@@ -110,5 +113,5 @@ func InitMongoRepository() (CoffeeRepository, error) {
 		panic(err)
 	}
 
-	return &MongoRepository{coll}, nil
+	return &MongoCoffeeRepository{db}, nil
 }
