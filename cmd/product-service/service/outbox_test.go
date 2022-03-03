@@ -13,7 +13,7 @@ func Test_Outbox(t *testing.T) {
 
 	t.Run("should add entry to outbox", func(t *testing.T) {
 		p := &mockPublisher{}
-		db := data.NewInMemoryOutbox()
+		db := data.NewInMemoryOutboxRepository()
 		outbox := NewOutbox(&db, p)
 		msgData := struct {
 			foo string
@@ -37,7 +37,7 @@ func Test_Outbox(t *testing.T) {
 
 	t.Run("background polling should send unsent entries in outbox", func(t *testing.T) {
 		p := &mockPublisher{}
-		db := data.NewInMemoryOutbox()
+		db := data.NewInMemoryOutboxRepository()
 		outbox := NewOutbox(&db, p)
 		cancel := outbox.StartBackgroundPolling(10 * time.Millisecond)
 		defer cancel()

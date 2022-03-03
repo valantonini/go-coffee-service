@@ -12,13 +12,13 @@ import (
 // ProductService defines the operations the service supports
 type ProductService struct {
 	repository data.CoffeeRepository
-	bus        events.Publisher
+	outbox     *Outbox
 	logger     *log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(repo data.CoffeeRepository, nc events.Publisher, logger *log.Logger) *ProductService {
-	return &ProductService{repo, nc, logger}
+func NewCoffeeService(repo data.CoffeeRepository, outbox *Outbox, logger *log.Logger) *ProductService {
+	return &ProductService{repo, outbox, logger}
 }
 
 func (p *ProductService) RegisterRoutes(r *mux.Router) {
@@ -75,7 +75,7 @@ func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.logger.Printf("publishing %v event\n%v\n", events.CoffeeAdded, string(newCoffeeJson))
-	err = p.bus.Publish(events.CoffeeAdded, newCoffeeJson)
+	_, err = (*p.outbox).Send(events.CoffeeAdded, newCoffeeJson)
 	if err != nil {
 		p.logger.Println(err)
 	}

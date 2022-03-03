@@ -9,7 +9,7 @@ type InMemoryOutboxRepository struct {
 	entries *map[string]entities.OutboxEntry
 }
 
-func NewInMemoryOutbox() OutboxRepository {
+func NewInMemoryOutboxRepository() OutboxRepository {
 	e := make(map[string]entities.OutboxEntry)
 	return &InMemoryOutboxRepository{&e}
 }
