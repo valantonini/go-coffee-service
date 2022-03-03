@@ -43,7 +43,8 @@ func main() {
 
 	cfg.Logger.Println("registering outbox")
 
-	outboxRepo := data.NewInMemoryOutboxRepository()
+	// outboxRepo := data.NewInMemoryOutboxRepository()
+	outboxRepo, _ := data.NewMongoOutboxRepository()
 	outbox := service.NewOutbox(&outboxRepo, nc)
 	cancelOutbox := outbox.StartBackgroundPolling(500 * time.Millisecond)
 	defer cancelOutbox()
