@@ -26,7 +26,7 @@ func NewDbConnection() (*mongo.Database, error) {
 			if time.Now().Sub(startTime) > maxWaitTime {
 				return nil, err
 			}
-			fmt.Printf("error connecting to db. backing off")
+			fmt.Println("error connecting to db. backing off")
 			time.Sleep(backoff)
 			continue
 		}

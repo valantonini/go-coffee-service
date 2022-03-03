@@ -19,7 +19,7 @@ func NewNatsConnection(natsAddress string) (*nats.Conn, error) {
 			if time.Now().Sub(startTime) > maxWaitTime {
 				return nil, err
 			}
-			fmt.Printf("error connecting to nats. backing off")
+			fmt.Println("error connecting to nats. backing off")
 			time.Sleep(backoff)
 			continue
 		}
