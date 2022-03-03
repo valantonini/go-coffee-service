@@ -72,7 +72,7 @@ func (m MongoCoffeeRepository) Add(name string) entities.Coffee {
 	return c
 }
 
-func InitMongoRepository() (CoffeeRepository, error) {
+func NewMongoCoffeeRepository() (CoffeeRepository, error) {
 	const uri = "mongodb://root:venti@product-service-db:27017/?maxPoolSize=20&w=majority"
 	// Create a new client and connect to the server
 

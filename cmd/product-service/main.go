@@ -29,7 +29,7 @@ func main() {
 	cfg.Logger.Println("connected to nats")
 
 	cfg.Logger.Print("initialising repository")
-	repo, err := data.InitMongoRepository()
+	repo, err := data.NewMongoCoffeeRepository()
 	if err != nil {
 		cfg.Logger.Fatalf("unable to initialise repo")
 	}

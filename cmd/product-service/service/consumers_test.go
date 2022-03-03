@@ -26,7 +26,7 @@ func (m *messageSpy) Respond(data []byte) error {
 
 func Test_Consumers(t *testing.T) {
 	Is := is.New(t)
-	repository, _ := data.InitInMemoryRepository()
+	repository, _ := data.NewInMemoryCoffeeRepository()
 	bus := &mockBus{}
 	logger := &log.Logger{}
 	consumerService := NewConsumerService(repository, bus, logger)

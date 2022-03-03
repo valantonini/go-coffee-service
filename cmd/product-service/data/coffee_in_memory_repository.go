@@ -39,6 +39,6 @@ func (r *InMemoryCoffeeRepository) Get(id string) (entities.Coffee, error) {
 	return entities.Coffee{}, NotFound
 }
 
-func InitInMemoryRepository() (CoffeeRepository, error) {
+func NewInMemoryCoffeeRepository() (CoffeeRepository, error) {
 	return &InMemoryCoffeeRepository{}, nil
 }

@@ -15,7 +15,7 @@ import (
 
 func TestProductService_Add(t *testing.T) {
 	Is := is.New(t)
-	repository, _ := data.InitInMemoryRepository()
+	repository, _ := data.NewInMemoryCoffeeRepository()
 	var p events.Publisher = &mockPublisher{}
 	outboxRepo := data.NewInMemoryOutboxRepository()
 	outbox := NewOutbox(&outboxRepo, p)
