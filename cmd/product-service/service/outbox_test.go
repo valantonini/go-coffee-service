@@ -28,8 +28,11 @@ func Test_Outbox(t *testing.T) {
 		id, _ := outbox.Send("sample-message", msg)
 
 		Is.Equal(p.messages[0].topic, "sample-message")
-		Is.Equal((*db.Entries)[id].Id, id)
-		Is.Equal((*db.Entries)[id].Sent, false)
+
+		unsent := db.GetUnsent()
+		Is.Equal(len(unsent), 1)
+		Is.Equal(unsent[0].Id, id)
+		Is.Equal(unsent[0].Sent, false)
 	})
 
 	t.Run("background polling should send unsent entries in outbox", func(t *testing.T) {
@@ -49,9 +52,9 @@ func Test_Outbox(t *testing.T) {
 
 		msg, _ := json.Marshal(msgData)
 
-		id, _ := outbox.Send("sample-message", msg)
+		outbox.Send("sample-message", msg)
 
 		time.Sleep(13 * time.Millisecond)
-		Is.Equal((*db.Entries)[id].Sent, true)
+		Is.Equal(len(db.GetUnsent()), 0)
 	})
 }

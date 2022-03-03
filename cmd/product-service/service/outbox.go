@@ -7,16 +7,16 @@ import (
 )
 
 type Outbox struct {
-	db        *data.InMemoryOutboxRepository
+	repo      *data.OutboxRepository
 	publisher *events.Publisher
 }
 
-func NewOutbox(db *data.InMemoryOutboxRepository, p events.Publisher) Outbox {
+func NewOutbox(db *data.OutboxRepository, p events.Publisher) Outbox {
 	return Outbox{db, &p}
 }
 
 func (o *Outbox) Send(topic string, message []byte) (string, error) {
-	msgId, err := (*o.db).Save(topic, message)
+	msgId, err := (*o.repo).SendMessage(topic, message)
 	(*o.publisher).Publish(topic, message)
 	return msgId, err
 }
@@ -30,9 +30,9 @@ func (o *Outbox) StartBackgroundPolling(interval time.Duration) (cancel func()) 
 			case <-done:
 				return
 			default:
-				for id, entry := range *o.db.Entries {
+				for _, entry := range (*o.repo).GetUnsent() {
 					if !entry.Sent {
-						(*o.db).MarkSent(id)
+						(*o.repo).MarkSent(entry.Id)
 					}
 				}
 				time.Sleep(interval)
