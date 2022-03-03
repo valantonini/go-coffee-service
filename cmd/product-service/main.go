@@ -8,6 +8,7 @@ import (
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
 	"github.com/valantonini/go-coffee-service/internal/pkg/health"
 	"net/http"
+	"time"
 )
 
 func setContentTypeMiddleware(next http.Handler) http.Handler {
@@ -40,11 +41,17 @@ func main() {
 	handlerService.RegisterConsumer("get-coffees", handlerService.GetCoffees)
 	cfg.Logger.Println("product service consumers registered")
 
+	cfg.Logger.Println("registering outbox")
+
+	outboxRepo := data.NewInMemoryOutboxRepository()
+	outbox := service.NewOutbox(&outboxRepo, nc)
+	cancelOutbox := outbox.StartBackgroundPolling(500 * time.Millisecond)
+	defer cancelOutbox()
+	cfg.Logger.Println("outbox registered")
+
 	cfg.Logger.Println("registering product service http handlers")
 	r := mux.NewRouter()
 	r.Use(setContentTypeMiddleware)
-	outboxRepo := data.NewInMemoryOutboxRepository()
-	outbox := service.NewOutbox(&outboxRepo, nc)
 	productService := service.NewCoffeeService(repo, &outbox, cfg.Logger)
 	productService.RegisterRoutes(r)
 	r.Handle("/health", health.NewHealthService(cfg.Logger)).Methods(http.MethodGet)

@@ -17,7 +17,6 @@ func NewOutbox(db *data.OutboxRepository, p events.Publisher) Outbox {
 
 func (o *Outbox) Send(topic string, message []byte) (string, error) {
 	msgId, err := (*o.repo).SendMessage(topic, message)
-	(*o.publisher).Publish(topic, message)
 	return msgId, err
 }
 
@@ -31,9 +30,11 @@ func (o *Outbox) StartBackgroundPolling(interval time.Duration) (cancel func()) 
 				return
 			default:
 				for _, entry := range (*o.repo).GetUnsent() {
-					if !entry.Sent {
-						(*o.repo).MarkSent(entry.Id)
+					err := (*o.publisher).Publish(entry.Topic, entry.Message)
+					if err != nil {
+						continue
 					}
+					(*o.repo).MarkSent(entry.Id)
 				}
 				time.Sleep(interval)
 			}

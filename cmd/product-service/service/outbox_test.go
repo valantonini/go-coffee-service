@@ -27,8 +27,6 @@ func Test_Outbox(t *testing.T) {
 
 		id, _ := outbox.Send("sample-message", msg)
 
-		Is.Equal(p.messages[0].topic, "sample-message")
-
 		unsent := db.GetUnsent()
 		Is.Equal(len(unsent), 1)
 		Is.Equal(unsent[0].Id, id)
