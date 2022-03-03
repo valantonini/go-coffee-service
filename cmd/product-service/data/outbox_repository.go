@@ -7,8 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var outboxCollection = "outbox"
@@ -66,20 +64,6 @@ func (m MongoOutboxRepository) MarkSent(id string) error {
 	return err
 }
 
-func NewMongoOutboxRepository() (OutboxRepository, error) {
-	const uri = "mongodb://root:venti@product-service-db:27017/?maxPoolSize=20&w=majority"
-	// Create a new client and connect to the server
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	// Ping the primary
-	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
-		panic(err)
-	}
-
-	db := client.Database("products")
+func NewMongoOutboxRepository(db *mongo.Database) (OutboxRepository, error) {
 	return &MongoOutboxRepository{db}, nil
 }

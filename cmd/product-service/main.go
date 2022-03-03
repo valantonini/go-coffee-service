@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
+	"github.com/valantonini/go-coffee-service/cmd/product-service/events"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/service"
 	"github.com/valantonini/go-coffee-service/internal/pkg/config"
 	"github.com/valantonini/go-coffee-service/internal/pkg/health"
@@ -22,15 +22,29 @@ func main() {
 	cfg := config.NewConfigFromEnv()
 
 	cfg.Logger.Printf("connecting to nats on %v\n", cfg.NatsAddress)
-	nc, err := nats.Connect(cfg.NatsAddress)
+	nc, err := events.NewNatsConnection(cfg.NatsAddress)
 	if err != nil {
-		cfg.Logger.Fatal(err.Error())
+		cfg.Logger.Fatal(err)
 	}
 	defer nc.Close()
 	cfg.Logger.Println("connected to nats")
 
+	cfg.Logger.Print("initialising db connection")
+	db, err := data.NewDbConnection()
+	if err != nil {
+		cfg.Logger.Fatal(err)
+	}
+	cfg.Logger.Print("db connection initialised")
+
+	cfg.Logger.Print("initialising test data")
+	err = data.InitTestData(db)
+	if err != nil {
+		cfg.Logger.Fatal(err)
+	}
+	cfg.Logger.Print("test data initialised")
+
 	cfg.Logger.Print("initialising repository")
-	repo, err := data.NewMongoCoffeeRepository()
+	repo, err := data.NewMongoCoffeeRepository(db)
 	if err != nil {
 		cfg.Logger.Fatalf("unable to initialise repo")
 	}
@@ -42,9 +56,7 @@ func main() {
 	cfg.Logger.Println("product service consumers registered")
 
 	cfg.Logger.Println("registering outbox")
-
-	// outboxRepo := data.NewInMemoryOutboxRepository()
-	outboxRepo, _ := data.NewMongoOutboxRepository()
+	outboxRepo, _ := data.NewMongoOutboxRepository(db)
 	outbox := service.NewOutbox(&outboxRepo, nc)
 	cancelOutbox := outbox.StartBackgroundPolling(500 * time.Millisecond)
 	defer cancelOutbox()
