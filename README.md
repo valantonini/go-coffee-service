@@ -15,8 +15,8 @@ Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/c
 - still to do:
   - durable messaging
   - message retry
-  - outbox pattern
-  - implement a db
+  - outbox pattern (in progress)
+  - ~~implement a db~~
 
 ## env
 
