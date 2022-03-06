@@ -2,21 +2,31 @@
 
 [![CI](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml/badge.svg)](https://github.com/valantonini/go-coffee-service/actions/workflows/makefile.yml)
 
-Playing with patterns and libraries for distributed systems in the Go ecosystem.
+playing with patterns and libraries for distributed systems in the Go ecosystem.
 
-Based on the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices) and [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+inspired by the [Hashicorp consul tutorial](https://learn.hashicorp.com/tutorials/consul/kubernetes-extract-microservice?in=consul/microservices) and [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+
+## progress
+
+### patterns
+outbox: guarantees _at least once delivery_ of messaging by first writing events to an outbox table within transactions that mutate the database. A Go routine periodically polls the outbox
+table, dispatches unsent messages onto the nats message bus and updates the outbox entries as sent.
+
+### product-service 
+a webapi in charge of coffee listings (GetAll/GetById/Add). service implements the outbox pattern and raises events on nats broker after db mutations (e.g. adding a new coffee)
+
+### order-service
+a webapi that queries for a list of coffees from the product-service on startup via message bus (nats) 
 
 ## caveats
 
 - i am new to go and many things aren't in their final shape
 - striving to use as few dependencies as possible to understand the problems libraries and frameworks are addressing 
 - secret management will not be production ready
-- many variables are inline for the moment and need to be extracted out to env
-- still to do:
+- to do:
+  - extract inline variables out to env
   - durable messaging
   - message retry
-  - outbox pattern (in progress)
-  - ~~implement a db~~
 
 ## env
 
@@ -39,7 +49,7 @@ make test_all
 ```
 
 
-## optional tooling
+## optional tooling for debugging
 
 nats realtime monitoring
 

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
@@ -65,23 +66,26 @@ func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCoffee := p.repository.Add(request.Name)
+	var response []byte
+	err = p.repository.WithTransaction(func(ctx context.Context) error {
+		newCoffee := p.repository.Add(ctx, request.Name)
+		newCoffeeJson, e := newCoffee.ToJSON()
+		if e != nil {
+			return err
+		}
 
-	newCoffeeJson, err := newCoffee.ToJSON()
+		_, e = (*p.outbox).Send(ctx, events.CoffeeAdded, newCoffeeJson)
+		response = newCoffeeJson
+		return err
+	})
+
 	if err != nil {
-		p.logger.Printf("error during json marshal of newCoffeeJson. Err: %s", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
 
-	p.logger.Printf("publishing %v event\n%v\n", events.CoffeeAdded, string(newCoffeeJson))
-	_, err = (*p.outbox).Send(events.CoffeeAdded, newCoffeeJson)
-	if err != nil {
-		p.logger.Println(err)
-	}
-
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write(newCoffeeJson)
+	_, err = w.Write(response)
 	if err != nil {
 		p.logger.Println(err)
 	}

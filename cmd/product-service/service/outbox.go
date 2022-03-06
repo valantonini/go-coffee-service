@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/events"
 	"time"
@@ -15,8 +16,8 @@ func NewOutbox(db *data.OutboxRepository, p events.Publisher) Outbox {
 	return Outbox{db, &p}
 }
 
-func (o *Outbox) Send(topic string, message []byte) (string, error) {
-	msgId, err := (*o.repo).SendMessage(topic, message)
+func (o *Outbox) Send(ctx context.Context, topic string, message []byte) (string, error) {
+	msgId, err := (*o.repo).SendMessage(ctx, topic, message)
 	return msgId, err
 }
 

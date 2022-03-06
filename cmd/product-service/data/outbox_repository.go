@@ -12,7 +12,7 @@ import (
 var outboxCollection = "outbox"
 
 type OutboxRepository interface {
-	SendMessage(topic string, message []byte) (string, error)
+	SendMessage(ctx context.Context, topic string, message []byte) (string, error)
 	GetUnsent() []entities.OutboxEntry
 	MarkSent(id string) error
 }
@@ -21,9 +21,9 @@ type MongoOutboxRepository struct {
 	db *mongo.Database
 }
 
-func (m MongoOutboxRepository) SendMessage(topic string, message []byte) (string, error) {
+func (m MongoOutboxRepository) SendMessage(ctx context.Context, topic string, message []byte) (string, error) {
 	doc := bson.D{{"topic", topic}, {"message", string(message)}, {"sent", false}}
-	result, err := m.db.Collection(outboxCollection).InsertOne(context.TODO(), doc)
+	result, err := m.db.Collection(outboxCollection).InsertOne(ctx, doc)
 
 	if err != nil {
 		return "", err

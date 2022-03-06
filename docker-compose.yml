@@ -13,6 +13,8 @@ services:
       - coffee-service-network
     depends_on:
       - nats
+      - mongo-primary
+
   order-service:
     build:
       context: .
@@ -36,17 +38,68 @@ services:
     networks:
       - coffee-service-network
 
-  product-service-db:
-    image: mongo
-    restart: always
+  mongo-primary:
+    hostname: mongo-primary
+    container_name: mongo-primary
+    image: bitnami/mongodb:4.4
+    expose:
+      - 27011
     ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: venti
+      - "27011:27011"
     networks:
       - coffee-service-network
+    environment:
+      MONGODB_DATABASE: "coffee-service"
+      MONGODB_PORT_NUMBER: 27011
+      MONGODB_ADVERTISED_HOSTNAME: mongo-primary
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_REPLICA_SET_KEY: replicasetkey123
+      MONGODB_ROOT_PASSWORD: venti
+
+  mongo-secondary:
+    hostname: mongo-secondary
+    container_name: mongo-secondary
+    image: bitnami/mongodb:4.4
+    expose:
+      - 27012
+    ports:
+      - "27012:27012"
+    networks:
+      - coffee-service-network
+    environment:
+      MONGODB_DATABASE: "coffee-service"
+      MONGODB_PORT_NUMBER: 27012
+      MONGODB_PRIMARY_HOST: mongo-primary
+      MONGODB_PRIMARY_PORT_NUMBER: 27011
+      MONGODB_ADVERTISED_HOSTNAME: mongo-secondary
+      MONGODB_REPLICA_SET_MODE: secondary
+      MONGODB_REPLICA_SET_KEY: replicasetkey123
+      MONGODB_PRIMARY_ROOT_PASSWORD: venti
+
+  mongo-arbiter:
+    hostname: mongo-arbiter
+    container_name: mongo-arbiter
+    image: bitnami/mongodb:4.4
+    expose:
+      - 27013
+    ports:
+      - "27013:27013"
+    networks:
+      - coffee-service-network
+    environment:
+      MONGODB_DATABASE: "coffee-service"
+      MONGODB_PORT_NUMBER: 27013
+      MONGODB_PRIMARY_HOST: mongo-primary
+      MONGODB_PRIMARY_PORT_NUMBER: 27011
+      MONGODB_ADVERTISED_HOSTNAME: mongo-arbiter
+      MONGODB_REPLICA_SET_MODE: arbiter
+      MONGODB_REPLICA_SET_KEY: replicasetkey123
+      MONGODB_PRIMARY_ROOT_PASSWORD: venti
 
 networks:
   coffee-service-network:
     driver: bridge
+
+volumes:
+  mongodb_master_data:
+    driver: local

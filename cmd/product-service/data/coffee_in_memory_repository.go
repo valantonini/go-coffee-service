@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data/entities"
 )
@@ -16,13 +17,17 @@ var coffees = entities.Coffees{
 type InMemoryCoffeeRepository struct {
 }
 
+func (r *InMemoryCoffeeRepository) WithTransaction(handler func(ctx context.Context) error) error {
+	return handler(context.TODO())
+}
+
 // GetAll gets a list of all coffees
 func (r *InMemoryCoffeeRepository) GetAll() entities.Coffees {
 	return coffees
 }
 
 // Add adds a coffee
-func (r *InMemoryCoffeeRepository) Add(name string) entities.Coffee {
+func (r *InMemoryCoffeeRepository) Add(ctx context.Context, name string) entities.Coffee {
 	coffee := entities.Coffee{Id: uuid.New().String(), Name: name}
 	coffees = append(coffees, coffee)
 	return coffee

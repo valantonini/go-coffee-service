@@ -18,11 +18,27 @@ var CoffeeCollection = "coffees"
 type CoffeeRepository interface {
 	Get(id string) (entities.Coffee, error)
 	GetAll() entities.Coffees
-	Add(name string) entities.Coffee
+	Add(ctx context.Context, name string) entities.Coffee
+	WithTransaction(f func(ctx context.Context) error) error
 }
 
 type MongoCoffeeRepository struct {
 	db *mongo.Database
+}
+
+func (m MongoCoffeeRepository) WithTransaction(handler func(ctx context.Context) error) error {
+	session, _ := m.db.Client().StartSession()
+	_ = session.StartTransaction()
+
+	err := mongo.WithSession(context.TODO(), session, func(sc mongo.SessionContext) error {
+		e := handler(sc)
+		if e != nil {
+			return e
+		}
+		return session.CommitTransaction(sc)
+	})
+
+	return err
 }
 
 func (m MongoCoffeeRepository) Get(id string) (entities.Coffee, error) {
@@ -57,17 +73,16 @@ func (m MongoCoffeeRepository) GetAll() entities.Coffees {
 	return coffees
 }
 
-func (m MongoCoffeeRepository) Add(name string) entities.Coffee {
+func (m MongoCoffeeRepository) Add(ctx context.Context, name string) entities.Coffee {
 	doc := bson.D{{"name", name}}
-	result, err := m.db.Collection(CoffeeCollection).InsertOne(context.TODO(), doc)
+	result, err := m.db.Collection(CoffeeCollection).InsertOne(ctx, doc)
 	if err != nil {
 		fmt.Println(err)
 		return entities.Coffee{}
 	}
 	fmt.Printf("Inserted document with _id: %v\n", result.InsertedID)
 	insertedId := result.InsertedID.(primitive.ObjectID).Hex()
-	c, _ := m.Get(insertedId)
-	return c
+	return entities.Coffee{insertedId, name}
 }
 
 func NewMongoCoffeeRepository(db *mongo.Database) (CoffeeRepository, error) {

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data/entities"
 )
@@ -14,7 +15,7 @@ func NewInMemoryOutboxRepository() OutboxRepository {
 	return &InMemoryOutboxRepository{&e}
 }
 
-func (db *InMemoryOutboxRepository) SendMessage(topic string, message []byte) (string, error) {
+func (db *InMemoryOutboxRepository) SendMessage(ctx context.Context, topic string, message []byte) (string, error) {
 	msgId := uuid.New().String()
 	(*db.entries)[msgId] = entities.OutboxEntry{msgId, topic, message, false}
 	return msgId, nil

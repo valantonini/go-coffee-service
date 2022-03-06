@@ -11,7 +11,7 @@ import (
 )
 
 func NewDbConnection() (*mongo.Database, error) {
-	const uri = "mongodb://root:venti@product-service-db:27017/?maxPoolSize=20&w=majority"
+	const uri = "mongodb://root:venti@mongo-primary:27011,mongo-secondary:27012,mongo-arbiter:27013/coffee-service?replicaSet=replicaset&authSource=admin"
 
 	startTime := time.Now()
 	backoff := 1 * time.Second      // this should be an exponential backoff
@@ -20,13 +20,16 @@ func NewDbConnection() (*mongo.Database, error) {
 	for {
 		var err error
 
-		client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+		o := options.Client().ApplyURI(uri)
+		timeout := time.Duration(5) * time.Second
+		o.ConnectTimeout = &timeout
+		client, err := mongo.Connect(context.TODO(), o)
 
 		if err != nil {
 			if time.Now().Sub(startTime) > maxWaitTime {
 				return nil, err
 			}
-			fmt.Println("error connecting to db. backing off")
+			fmt.Printf("error connecting to db. backing off %v\n", err)
 			time.Sleep(backoff)
 			continue
 		}
@@ -35,13 +38,18 @@ func NewDbConnection() (*mongo.Database, error) {
 
 		db := client.Database("products")
 
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		return db, nil
 	}
 }
 
 func InitTestData(db *mongo.Database) error {
 	coll := db.Collection(CoffeeCollection)
-	_, err := coll.DeleteMany(context.TODO(), bson.D{})
+	ctx, _ := context.WithTimeout(context.TODO(), time.Duration(5)*time.Second)
+	_, err := coll.DeleteMany(ctx, bson.D{})
 	if err != nil {
 		return err
 	}

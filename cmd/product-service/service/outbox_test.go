@@ -25,7 +25,7 @@ func Test_Outbox(t *testing.T) {
 
 		msg, _ := json.Marshal(msgData)
 
-		id, _ := outbox.Send("sample-message", msg)
+		id, _ := outbox.Send(nil, "sample-message", msg)
 
 		unsent := db.GetUnsent()
 		Is.Equal(len(unsent), 1)
@@ -50,7 +50,7 @@ func Test_Outbox(t *testing.T) {
 
 		msg, _ := json.Marshal(msgData)
 
-		outbox.Send("sample-message", msg)
+		outbox.Send(nil, "sample-message", msg)
 
 		time.Sleep(13 * time.Millisecond)
 		Is.Equal(len(db.GetUnsent()), 0)
