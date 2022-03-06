@@ -25,7 +25,7 @@ type coffee struct {
 
 func Test_ProductService(t *testing.T) {
 	Is := is.New(t)
-	var cfg = config.NewConfigFromEnv()
+	var cfg = config.NewConfigFromEnv("product-service-integration-tests")
 
 	nc, err := nats.Connect(cfg.NatsAddress)
 	Is.NoErr(err)

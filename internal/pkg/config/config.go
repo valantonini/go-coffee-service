@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"os"
 )
 
@@ -14,12 +14,12 @@ const (
 type Config struct {
 	BindAddress string
 	NatsAddress string
-	Logger      *log.Logger
+	Logger      log.Logger
 }
 
 // NewConfigFromEnv creates a Config from the environment variables with sensible fallbacks
-func NewConfigFromEnv() *Config {
-	logger := log.Default()
+func NewConfigFromEnv(service string) *Config {
+	logger := log.NewLogger(service)
 
 	bindAddress := os.Getenv(BindAddress)
 	if bindAddress == "" {

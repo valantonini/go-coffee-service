@@ -19,60 +19,60 @@ func setContentTypeMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	cfg := config.NewConfigFromEnv()
+	cfg := config.NewConfigFromEnv("product-service")
 
-	cfg.Logger.Printf("connecting to nats on %v\n", cfg.NatsAddress)
+	cfg.Logger.Info("connecting to nats", "natAddress", cfg.NatsAddress)
 	nc, err := events.NewNatsConnection(cfg.NatsAddress)
 	if err != nil {
-		cfg.Logger.Fatal(err)
+		cfg.Logger.Error(err.Error())
 	}
 	defer nc.Close()
-	cfg.Logger.Println("connected to nats")
+	cfg.Logger.Info("connected to nats")
 
-	cfg.Logger.Print("initialising db connection")
+	cfg.Logger.Info("initialising db connection")
 	db, err := data.NewDbConnection()
 	if err != nil {
-		cfg.Logger.Fatal(err)
+		cfg.Logger.Error(err.Error())
 	}
-	cfg.Logger.Print("db connection initialised")
+	cfg.Logger.Info("db connection initialised")
 
-	cfg.Logger.Print("initialising test data")
+	cfg.Logger.Info("initialising test data")
 	err = data.InitTestData(db)
 	if err != nil {
-		cfg.Logger.Fatal(err)
+		cfg.Logger.Error(err.Error())
 	}
-	cfg.Logger.Print("test data initialised")
+	cfg.Logger.Info("test data initialised")
 
-	cfg.Logger.Print("initialising repository")
+	cfg.Logger.Info("initialising repository")
 	repo, err := data.NewMongoCoffeeRepository(db)
 	if err != nil {
-		cfg.Logger.Fatalf("unable to initialise repo")
+		cfg.Logger.Error("unable to initialise repo")
 	}
-	cfg.Logger.Print("repository initialised")
+	cfg.Logger.Info("repository initialised")
 
-	cfg.Logger.Println("registering product service consumers")
+	cfg.Logger.Info("registering product service consumers")
 	handlerService := service.NewConsumerService(repo, nc, cfg.Logger)
 	handlerService.RegisterConsumer("get-coffees", handlerService.GetCoffees)
-	cfg.Logger.Println("product service consumers registered")
+	cfg.Logger.Info("product service consumers registered")
 
-	cfg.Logger.Println("registering outbox")
+	cfg.Logger.Info("registering outbox")
 	outboxRepo, _ := data.NewMongoOutboxRepository(db)
 	outbox := service.NewOutbox(&outboxRepo, nc)
 	cancelOutbox := outbox.StartBackgroundPolling(500 * time.Millisecond)
 	defer cancelOutbox()
-	cfg.Logger.Println("outbox registered")
+	cfg.Logger.Info("outbox registered")
 
-	cfg.Logger.Println("registering product service http handlers")
+	cfg.Logger.Info("registering product service http handlers")
 	r := mux.NewRouter()
 	r.Use(setContentTypeMiddleware)
 	productService := service.NewCoffeeService(repo, &outbox, cfg.Logger)
 	productService.RegisterRoutes(r)
 	r.Handle("/health", health.NewHealthService(cfg.Logger)).Methods(http.MethodGet)
 	http.Handle("/", r)
-	cfg.Logger.Println("product service http handlers registered")
+	cfg.Logger.Info("product service http handlers registered")
 
-	cfg.Logger.Printf("starting server on %v", cfg.BindAddress)
+	cfg.Logger.Info("starting server on", "bindAddress", cfg.BindAddress)
 	if err := http.ListenAndServe(cfg.BindAddress, nil); err != nil {
-		cfg.Logger.Fatal(err)
+		cfg.Logger.Error(err.Error())
 	}
 }

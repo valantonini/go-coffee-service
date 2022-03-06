@@ -2,17 +2,17 @@ package health
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"net/http"
 )
 
 // HealthService is a HTTP Consumer for health checking
 type HealthService struct {
-	logger *log.Logger
+	logger log.Logger
 }
 
 // NewHealthService creates a new Health handler
-func NewHealthService(l *log.Logger) *HealthService {
+func NewHealthService(l log.Logger) *HealthService {
 	return &HealthService{l}
 }
 
@@ -22,6 +22,6 @@ func (h *HealthService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewEncoder(w).Encode("ok")
 	if err != nil {
-		h.logger.Println(err)
+		h.logger.Error(err.Error())
 	}
 }

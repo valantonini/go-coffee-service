@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"time"
 )
 
@@ -19,12 +19,12 @@ type Subscriber interface {
 type ConsumerService struct {
 	repository data.CoffeeRepository
 	bus        Subscriber
-	logger     *log.Logger
+	logger     log.Logger
 }
 
 type Consumer func(msg Message)
 
-func NewConsumerService(repo data.CoffeeRepository, nc Subscriber, logger *log.Logger) *ConsumerService {
+func NewConsumerService(repo data.CoffeeRepository, nc Subscriber, logger log.Logger) *ConsumerService {
 	return &ConsumerService{repo, nc, logger}
 }
 
@@ -39,7 +39,7 @@ func (c ConsumerService) RegisterConsumer(topic string, consumer Consumer) {
 		for true {
 			msg, err := sub.NextMsg(10 * time.Minute)
 			if err != nil && err != nats.ErrTimeout {
-				c.logger.Println(err)
+				c.logger.Error(err.Error())
 			}
 			consumer(msg)
 		}

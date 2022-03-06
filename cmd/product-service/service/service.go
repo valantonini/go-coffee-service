@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/events"
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"net/http"
 )
 
@@ -14,11 +14,11 @@ import (
 type ProductService struct {
 	repository data.CoffeeRepository
 	outbox     *Outbox
-	logger     *log.Logger
+	logger     log.Logger
 }
 
 // NewCoffeeService creates a new instance of the coffee service
-func NewCoffeeService(repo data.CoffeeRepository, outbox *Outbox, logger *log.Logger) *ProductService {
+func NewCoffeeService(repo data.CoffeeRepository, outbox *Outbox, logger log.Logger) *ProductService {
 	return &ProductService{repo, outbox, logger}
 }
 
@@ -34,7 +34,7 @@ func (p *ProductService) List(w http.ResponseWriter, r *http.Request) {
 
 	res, err := result.ToJSON()
 	if err != nil {
-		p.logger.Printf("Error during JSON marshal. Err: %s", err)
+		p.logger.Error("Error during JSON marshal", "err", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +42,7 @@ func (p *ProductService) List(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
 	if err != nil {
-		p.logger.Println(err)
+		p.logger.Warn(err.Error())
 	}
 }
 
@@ -56,7 +56,7 @@ func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&request)
 	if err != nil {
-		p.logger.Printf("error during json marshal of request. Err: %s", err)
+		p.logger.Error("error during json marshal of request", "error", err)
 		http.Error(w, "\"bad request\"", http.StatusBadRequest)
 		return
 	}
@@ -87,7 +87,7 @@ func (p *ProductService) Add(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(response)
 	if err != nil {
-		p.logger.Println(err)
+		p.logger.Warn(err.Error())
 	}
 }
 
@@ -115,7 +115,7 @@ func (p *ProductService) Get(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(coffee)
 
 	if err != nil {
-		p.logger.Printf("error during json marshal of coffeeJson. Err: %s", err)
+		p.logger.Error("error during json marshal of coffeeJson", "err", err)
 		http.Error(w, "\"internal server error\"", http.StatusInternalServerError)
 	}
 }

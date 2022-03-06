@@ -5,7 +5,7 @@ import (
 	"github.com/matryer/is"
 	"github.com/nats-io/nats.go"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"testing"
 )
 
@@ -28,7 +28,7 @@ func Test_Consumers(t *testing.T) {
 	Is := is.New(t)
 	repository, _ := data.NewInMemoryCoffeeRepository()
 	bus := &mockBus{}
-	logger := &log.Logger{}
+	logger := log.NewLogger("test-consumers")
 	consumerService := NewConsumerService(repository, bus, logger)
 
 	t.Run("GetCoffees should respond with a json  list of coffees", func(t *testing.T) {

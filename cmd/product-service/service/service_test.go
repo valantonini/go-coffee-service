@@ -7,7 +7,7 @@ import (
 	"github.com/matryer/is"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/data"
 	"github.com/valantonini/go-coffee-service/cmd/product-service/events"
-	"log"
+	"github.com/valantonini/go-coffee-service/internal/pkg/log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,12 +15,13 @@ import (
 
 func TestProductService_Add(t *testing.T) {
 	Is := is.New(t)
+	logger := log.NewLogger("product-service-test")
 	repository, _ := data.NewInMemoryCoffeeRepository()
 	var p events.Publisher = &mockPublisher{}
 	outboxRepo := data.NewInMemoryOutboxRepository()
 	outbox := NewOutbox(&outboxRepo, p)
 	router := mux.NewRouter()
-	service := NewCoffeeService(repository, &outbox, log.Default())
+	service := NewCoffeeService(repository, &outbox, logger)
 	service.RegisterRoutes(router)
 
 	t.Run("should return new coffee", func(t *testing.T) {
