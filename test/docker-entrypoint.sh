@@ -5,7 +5,7 @@
 set -e
 
 # Wait for the backend to be up, if we know where it is.
-/app/test/wait-for-it.sh $WAIT_FOR -t 15
+/app/test/wait-for-it.sh $WAIT_FOR -t 30
 
 
 # Run the main container command.
